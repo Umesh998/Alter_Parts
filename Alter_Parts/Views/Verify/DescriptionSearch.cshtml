@@ -1,0 +1,468 @@
+﻿@model Alter_Parts.Models.DescriptionSearchViewModel
+
+@{
+    ViewData["Title"] = "Search by Description";
+}
+
+<div class="container mt-4">
+
+    <!-- Search Form -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-dark text-white">
+            <h4 class="mb-0">🔍 Find Parts by Description</h4>
+            <small class="opacity-75">
+                Search across DigiKey and Mouser simultaneously
+            </small>
+        </div>
+        <div class="card-body">
+            <form asp-action="DescriptionSearch" method="post">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-8">
+                        <label class="form-label fw-bold">
+                            Description / Keywords
+                        </label>
+                        <input type="text"
+                               name="Description"
+                               class="form-control form-control-lg"
+                               value="@Model.Description"
+                               placeholder="e.g. 10uF Capacitor 0402 6.3V, NPN Transistor SOT-23"
+                               required />
+                        <small class="text-muted">
+                            Enter description, value, package
+                            or any keywords
+                        </small>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">
+                            Max Results
+                        </label>
+                        <select name="Limit"
+                                class="form-select form-select-lg">
+                            <option value="5">Top 5</option>
+                            <option value="10" selected>Top 10</option>
+                            <option value="20">Top 20</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit"
+                                class="btn btn-primary btn-lg w-100">
+                            🔍 Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.Error))
+    {
+        <div class="alert alert-warning">@Model.Error</div>
+    }
+
+    @if (Model.DigiKeyResults.Any() || Model.MouserResults.Any())
+    {
+        <!-- Source badges -->
+        <div class="d-flex justify-content-between
+            align-items-center mb-3">
+            <h5 class="mb-0">
+                📋 Results for
+                <strong>"@Model.Description"</strong>
+            </h5>
+            <div>
+                <span class="badge bg-primary me-1">
+                    DigiKey: @Model.DigiKeyTotal
+                </span>
+
+                <span class="badge bg-success">
+                    Mouser: @Model.MouserTotal
+                </span>
+
+                <span class="badge bg-danger">
+                    LCSC: @Model.LCSCTotal
+                </span>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-3" id="resultTabs">
+            <li class="nav-item">
+                <button class="nav-link active"
+                        data-bs-toggle="tab"
+                        data-bs-target="#digikey-tab">
+                    <span class="badge bg-primary me-1">
+                        @Model.DigiKeyTotal
+                    </span>
+                    DigiKey Results
+                </button>
+            </li>
+
+            <li class="nav-item">
+                <button class="nav-link"
+                        data-bs-toggle="tab"
+                        data-bs-target="#mouser-tab">
+                    <span class="badge bg-success me-1">
+                        @Model.MouserTotal
+                    </span>
+                    Mouser Results
+                </button>
+            </li>
+
+            <li class="nav-item">
+                <button class="nav-link"
+                        data-bs-toggle="tab"
+                        data-bs-target="#lcsc-tab">
+                    <span class="badge bg-danger me-1">
+                        @Model.LCSCTotal
+                    </span>
+                    LCSC
+                </button>
+            </li>
+
+            <li class="nav-item">
+                <button class="nav-link"
+                        data-bs-toggle="tab"
+                        data-bs-target="#combined-tab">
+                    <span class="badge bg-dark me-1">
+                        @(Model.DigiKeyTotal + Model.MouserTotal +
+                  Model.LCSCTotal)
+                    </span>
+                    All Results
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+
+            <!-- DigiKey Tab -->
+            <div class="tab-pane fade show active"
+                 id="digikey-tab">
+                @if (!Model.DigiKeyResults.Any())
+                {
+                    <div class="alert alert-info">
+                        No results from DigiKey.
+                    </div>
+                }
+                <div class="row">
+                    @foreach (var part in Model.DigiKeyResults)
+                    {
+                        @await Html.PartialAsync(
+                            "_PartResultCard", part)
+                    }
+                </div>
+            </div>
+
+            <!-- Mouser Tab -->
+            <div class="tab-pane fade" id="mouser-tab">
+                @if (!Model.MouserResults.Any())
+                {
+                    <div class="alert alert-info">
+                        No results from Mouser.
+                    </div>
+                }
+                <div class="row">
+                    @foreach (var part in Model.MouserResults)
+                    {
+                        @await Html.PartialAsync(
+                            "_PartResultCard", part)
+                    }
+                </div>
+            </div>
+
+            <!-- ✅ LCSC Tab -->
+            <div class="tab-pane fade" id="lcsc-tab">
+                @if (!Model.LCSCResults.Any())
+                {
+                    <div class="alert alert-info">
+                        No results from LCSC.
+                    </div>
+                }
+                <div class="row">
+                    @foreach (var part in Model.LCSCResults)
+                    {
+                        @await Html.PartialAsync(
+                            "_PartResultCard", part)
+                    }
+                </div>
+            </div>
+
+            <!-- All Results Tab -->
+            <div class="tab-pane fade" id="combined-tab">
+                <div class="row">
+                    @foreach (var part in
+                        Model.DigiKeyResults
+                             .Concat(Model.MouserResults)
+                             .Concat(Model.LCSCResults)
+                             .OrderByDescending(r =>
+                                double.TryParse(
+                                    r.Specs.GetValueOrDefault(
+                                        "Match Score", "0")
+                                     .Replace("%", ""),
+                                    out var s) ? s : 0))
+                    {
+                        @await Html.PartialAsync(
+                            "_PartResultCard", part)
+                    }
+                </div>
+            </div>
+
+        </div>
+    }
+</div> 
+
+
+
+
+
+
+
+
+@* @model Alter_Parts.Models.DescriptionSearchViewModel
+
+@{
+    ViewData["Title"] = "Search by Description";
+}
+
+<!-- Import Technical Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+
+<style>
+    /* ── RICHARD MILLE DARK THEME ── */
+    .rm-theme-wrapper {
+        background-color: #050505;
+        color: #E0E0E0;
+        font-family: 'Rajdhani', sans-serif;
+        padding: 40px 0;
+        min-height: 100vh;
+    }
+
+    .rm-container {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Architectural Headers */
+    .rm-header {
+        font-size: 2.2rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 15px;
+        margin-bottom: 10px;
+        color: #FFFFFF;
+    }
+    .rm-header span { color: #0088FF; }
+
+    /* Engineered Panels */
+    .rm-panel {
+        background-color: #0A0A0A;
+        border: 1px solid #1A1A1A;
+        border-top: 3px solid #0088FF;
+        padding: 30px;
+        margin-bottom: 40px;
+    }
+
+    /* Form Elements */
+    .rm-input-label {
+        display: block;
+        color: #AAA;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+    }
+
+    .rm-text-input {
+        display: block;
+        width: 100%;
+        padding: 12px 15px;
+        font-family: 'Space Mono', monospace;
+        font-size: 1rem;
+        color: #FFF;
+        background-color: #050505;
+        border: 1px solid #333;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+    .rm-text-input:focus { border-color: #0088FF; }
+
+    select.rm-text-input {
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230088FF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+        background-size: 15px;
+    }
+
+    /* Custom RM Tabs */
+    .rm-nav-tabs {
+        border-bottom: 1px solid #222 !important;
+        gap: 5px;
+    }
+    .rm-nav-tabs .nav-link {
+        background-color: #0A0A0A !important;
+        border: 1px solid #1A1A1A !important;
+        border-bottom: none !important;
+        color: #666 !important;
+        font-family: 'Space Mono', monospace;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        padding: 12px 20px;
+        transition: all 0.3s;
+    }
+    
+    /* Neon Active States for Tabs */
+    .rm-nav-tabs .nav-link.active[data-bs-target="#digikey-tab"] { border-top: 3px solid #0088FF !important; color: #0088FF !important; }
+    .rm-nav-tabs .nav-link.active[data-bs-target="#mouser-tab"] { border-top: 3px solid #39FF14 !important; color: #39FF14 !important; }
+    .rm-nav-tabs .nav-link.active[data-bs-target="#lcsc-tab"] { border-top: 3px solid #FF073A !important; color: #FF073A !important; }
+    .rm-nav-tabs .nav-link.active[data-bs-target="#combined-tab"] { border-top: 3px solid #FFF !important; color: #FFF !important; }
+
+    /* Tactical Alerts */
+    .rm-alert {
+        background-color: #0A0A0A;
+        border: 1px solid #333;
+        color: #888;
+        padding: 20px;
+        font-family: 'Space Mono', monospace;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* Tactical Badges */
+    .rm-badge {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.7rem;
+        padding: 4px 8px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .rm-btn-primary {
+        background-color: transparent;
+        border: 1px solid #0088FF;
+        color: #0088FF;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        padding: 12px;
+        transition: all 0.3s;
+    }
+    .rm-btn-primary:hover { background-color: #0088FF; color: #000; }
+</style>
+
+<div class="rm-theme-wrapper">
+    <div class="rm-container">
+
+        <h2 class="rm-header">Global <span>Search Matrix</span></h2>
+
+        <!-- Search Terminal -->
+        <div class="rm-panel">
+            <form asp-action="DescriptionSearch" method="post">
+                <div class="row align-items-end">
+                    <div class="col-md-8">
+                        <label class="rm-input-label">Description / Parameter Set</label>
+                        <input type="text" name="Description" class="rm-text-input" value="@Model.Description" placeholder="e.g. 10uF Capacitor 0402 6.3V" required />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="rm-input-label">Output Limit</label>
+                        <select name="Limit" class="rm-text-input">
+                            <option value="5">TOP 05</option>
+                            <option value="10" selected>TOP 10</option>
+                            <option value="20">TOP 20</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="rm-btn-primary w-100">SCAN MATRIX</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Error))
+        {
+            <div class="rm-alert" style="border-color: #FF9900; color: #FF9900;">
+                [!] EXCEPTION: @Model.Error
+            </div>
+        }
+
+        @if (Model.DigiKeyResults.Any() || Model.MouserResults.Any() || Model.LCSCResults.Any())
+        {
+            <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-3" style="border-color: #222 !important;">
+                <h5 class="mb-0" style="font-family: 'Space Mono'; letter-spacing: 1px;">
+                    QUERY: <span style="color: #0088FF;">"@Model.Description.ToUpper()"</span>
+                </h5>
+                <div class="d-flex gap-2">
+                    <span class="rm-badge" style="border: 1px solid #0088FF; color: #0088FF;">DIGIKEY: @Model.DigiKeyTotal</span>
+                    <span class="rm-badge" style="border: 1px solid #39FF14; color: #39FF14;">MOUSER: @Model.MouserTotal</span>
+                    <span class="rm-badge" style="border: 1px solid #FF073A; color: #FF073A;">LCSC: @Model.LCSCTotal</span>
+                </div>
+            </div>
+
+            <!-- Richard Mille Multi-Source Tabs -->
+            <ul class="nav nav-tabs rm-nav-tabs mb-4" id="resultTabs" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#digikey-tab">
+                        [@Model.DigiKeyTotal] DIGIKEY_NODES
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#mouser-tab">
+                        [@Model.MouserTotal] MOUSER_NODES
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#lcsc-tab">
+                        [@Model.LCSCTotal] LCSC_NODES
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#combined-tab">
+                        [@(Model.DigiKeyTotal + Model.MouserTotal + Model.LCSCTotal)] ALL_SOURCES
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <!-- DigiKey Tab -->
+                <div class="tab-pane fade show active" id="digikey-tab">
+                    @if (!Model.DigiKeyResults.Any()) { <div class="rm-alert">> NO DATA RETURNED FROM DIGIKEY NODE</div> }
+                    <div class="row">
+                        @foreach (var part in Model.DigiKeyResults) { @await Html.PartialAsync("_PartResultCard", part) }
+                    </div>
+                </div>
+
+                <!-- Mouser Tab -->
+                <div class="tab-pane fade" id="mouser-tab">
+                    @if (!Model.MouserResults.Any()) { <div class="rm-alert">> NO DATA RETURNED FROM MOUSER NODE</div> }
+                    <div class="row">
+                        @foreach (var part in Model.MouserResults) { @await Html.PartialAsync("_PartResultCard", part) }
+                    </div>
+                </div>
+
+                <!-- LCSC Tab -->
+                <div class="tab-pane fade" id="lcsc-tab">
+                    @if (!Model.LCSCResults.Any()) { <div class="rm-alert">> NO DATA RETURNED FROM LCSC NODE</div> }
+                    <div class="row">
+                        @foreach (var part in Model.LCSCResults) { @await Html.PartialAsync("_PartResultCard", part) }
+                    </div>
+                </div>
+
+                <!-- All Results Tab (Combined & Sorted) -->
+                <div class="tab-pane fade" id="combined-tab">
+                    <div class="row">
+                        @foreach (var part in Model.DigiKeyResults
+                             .Concat(Model.MouserResults)
+                             .Concat(Model.LCSCResults)
+                             .OrderByDescending(r => double.TryParse(r.Specs.GetValueOrDefault("Match Score", "0").Replace("%", ""), out var s) ? s : 0))
+                        {
+                            @await Html.PartialAsync("_PartResultCard", part)
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div> *@

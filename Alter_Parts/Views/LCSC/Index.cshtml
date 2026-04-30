@@ -1,0 +1,613 @@
+﻿@* @model Alter_Parts.Models.LCSCSearchViewModel
+
+@{
+    ViewData["Title"] = "Search by Description";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-dark text-white">
+            <h4 class="mb-0">
+                🔍 Search Components by Description
+            </h4>
+            <small class="opacity-75">
+                Powered by LCSC — enter any description and get
+                the best matching components
+            </small>
+        </div>
+        <div class="card-body">
+            <form asp-action="Search" method="post">
+                <div class="row g-2 align-items-end">
+                    <div class="col-md-8">
+                        <label class="form-label fw-bold">
+                            Description / Keywords
+                        </label>
+                        <input type="text"
+                               name="Keyword"
+                               class="form-control form-control-lg"
+                               value="@Model.Keyword"
+                               placeholder="e.g. 10uF Capacitor 0402 6.3V, NPN Transistor SOT-23, Op-Amp DIP-8"
+                               required />
+                        <small class="text-muted">
+                            Enter part description, specs, package,
+                            or any keywords
+                        </small>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">
+                            Results
+                        </label>
+                        <select name="Limit"
+                                class="form-select form-select-lg">
+                            <option value="5">Top 5</option>
+                            <option value="10" selected>Top 10</option>
+                            <option value="20">Top 20</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit"
+                                class="btn btn-primary
+                            btn-lg w-100">
+                            🔍 Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.Error))
+    {
+        <div class="alert alert-warning">@Model.Error</div>
+    }
+
+    @if (Model.Results.Any())
+    {
+        <div class="d-flex justify-content-between
+            align-items-center mb-3">
+            <h5 class="mb-0">
+                📋 Results for
+                <strong>"@Model.Keyword"</strong>
+                <span class="badge bg-secondary ms-2">
+                    @Model.TotalFound found
+                </span>
+            </h5>
+        </div>
+
+        <div class="row">
+            @foreach (var part in Model.Results)
+            {
+                var matchColor =
+                    part.MatchScore >= 80 ? "success" :
+                    part.MatchScore >= 50 ? "warning" : "secondary";
+
+                var stockNum = int.TryParse(part.Stock,
+                    out var s) ? s : 0;
+                var stockColor =
+                    stockNum > 1000 ? "success" :
+                    stockNum > 0 ? "warning" : "danger";
+
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100 shadow-sm border-@matchColor">
+                        <div class="card-header d-flex
+                            justify-content-between
+                            align-items-center">
+                            <div>
+                                <span class="badge bg-dark me-1">
+                                    @part.LcscPartNumber
+                                </span>
+                                @if (!string.IsNullOrEmpty(
+                                    part.MpnNumber))
+                                {
+                                    <span class="badge
+                                        bg-secondary">
+                                        MPN: @part.MpnNumber
+                                    </span>
+                                }
+                            </div>
+                            <div class="text-end">
+                                <span class="badge
+                                    bg-@matchColor">
+                                    @part.MatchScore% match
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="card-body">
+                            <!-- Description -->
+                            <p class="fw-bold mb-2">
+                                @part.Description
+                            </p>
+
+                            <!-- Key Details -->
+                            <div class="row g-1 small mb-2">
+                                @if (!string.IsNullOrEmpty(
+                                    part.Manufacturer))
+                                {
+                                    <div class="col-6">
+                                        <span class="text-muted">
+                                            Manufacturer:
+                                        </span>
+                                        <strong>
+                                            @part.Manufacturer
+                                        </strong>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(
+                                    part.Package))
+                                {
+                                    <div class="col-6">
+                                        <span class="text-muted">
+                                            Package:
+                                        </span>
+                                        <strong>@part.Package</strong>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(
+                                    part.Category))
+                                {
+                                    <div class="col-6">
+                                        <span class="text-muted">
+                                            Category:
+                                        </span>
+                                        @part.Category
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(
+                                    part.Price))
+                                {
+                                    <div class="col-6">
+                                        <span class="text-muted">
+                                            Price:
+                                        </span>
+                                        <strong class="text-success">
+                                            @part.Price
+                                        </strong>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Stock -->
+                            <div class="mb-2">
+                                <span class="text-muted small">
+                                    Stock:
+                                </span>
+                                <span class="badge
+                                    bg-@stockColor">
+                                    @(string.IsNullOrEmpty(
+                                        part.Stock)
+                                        ? "Unknown"
+                                        : $"{part.Stock} units")
+                                </span>
+                            </div>
+
+                            <!-- Match bar -->
+                            <div class="progress mb-2"
+                                 style="height:6px">
+                                <div class="progress-bar
+                                    bg-@matchColor"
+                                     style="width:@part.MatchScore%">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Links -->
+                        <div class="card-footer bg-transparent">
+                            <div class="d-flex gap-2">
+                                @if (!string.IsNullOrEmpty(
+                                    part.ProductUrl))
+                                {
+                                    <a href="@part.ProductUrl"
+                                           target="_blank"
+                                           class="btn btn-sm
+                                        btn-outline-primary">
+                                        🛒 View on LCSC
+                                    </a>
+                                }
+                                @if (!string.IsNullOrEmpty(
+                                    part.DatasheetUrl))
+                                {
+                                    <a href="@part.DatasheetUrl"
+                                           target="_blank"
+                                           class="btn btn-sm
+                                        btn-outline-secondary">
+                                        📄 Datasheet
+                                    </a>
+                                }
+                                @if (!string.IsNullOrEmpty(
+                                    part.MpnNumber))
+                                {
+                                    <a asp-controller="Verify"
+                                           asp-action="Index"
+                                           asp-route-partNumber="@part.MpnNumber"
+                                           class="btn btn-sm
+                                        btn-outline-success">
+                                        🔍 Verify
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div> *@
+
+
+
+
+
+
+
+
+
+@model Alter_Parts.Models.LCSCSearchViewModel
+
+@{
+    ViewData["Title"] = "Search by Description";
+}
+
+<!-- Import Technical Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+
+<style>
+    /* ── RICHARD MILLE DARK THEME ── */
+    .rm-theme-wrapper {
+        background-color: #050505;
+        color: #E0E0E0;
+        font-family: 'Rajdhani', sans-serif;
+        padding: 40px 0;
+        min-height: 100vh;
+    }
+
+    .rm-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Architectural Headers */
+    .rm-header {
+        font-size: 2.2rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 15px;
+        margin-bottom: 10px;
+        color: #FFFFFF;
+    }
+    .rm-header span { color: #0088FF; /* Neon Blue Accent */ }
+    
+    .rm-subtitle {
+        font-family: 'Space Mono', monospace;
+        color: #888;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+    }
+
+    /* Engineered Panels */
+    .rm-panel {
+        background-color: #0A0A0A;
+        border: 1px solid #1A1A1A;
+        border-top: 3px solid #0088FF;
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+
+    /* Component Result Card */
+    .rm-card {
+        background-color: #0A0A0A;
+        border: 1px solid #222;
+        border-top: 3px solid #444; /* Default, overridden by logic */
+        padding: 20px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: border-color 0.3s ease, transform 0.2s ease;
+    }
+    .rm-card:hover { border-color: #555; transform: translateY(-3px); }
+
+    .rm-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #151515;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+    }
+
+    /* Form Inputs */
+    .rm-input-label {
+        display: block;
+        color: #AAA;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+    }
+
+    .rm-text-input {
+        display: block;
+        width: 100%;
+        padding: 12px 15px;
+        font-family: 'Space Mono', monospace;
+        font-size: 1rem;
+        color: #FFF;
+        background-color: #050505;
+        border: 1px solid #333;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+    .rm-text-input:focus {
+        border-color: #0088FF;
+        box-shadow: 0 0 10px rgba(0, 136, 255, 0.1);
+    }
+
+    /* Custom Select Dropdown */
+    select.rm-text-input {
+        appearance: none;
+        cursor: pointer;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230088FF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+        background-size: 15px;
+        padding-right: 40px;
+    }
+    
+    select.rm-text-input option {
+        background-color: #0A0A0A;
+        color: #FFF;
+        font-family: 'Space Mono', monospace;
+    }
+
+    /* Typography & Badges */
+    .rm-mono { font-family: 'Space Mono', monospace; }
+    
+    .rm-badge {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: inline-block;
+        font-family: 'Space Mono', monospace;
+    }
+
+    .rm-data-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .rm-data-item {
+        display: flex;
+        flex-direction: column;
+    }
+    .rm-data-label { color: #666; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px;}
+    .rm-data-value { color: #E0E0E0; font-size: 0.9rem; font-weight: 600; }
+
+    /* Luminous Progress Bar */
+    .rm-meter {
+        height: 4px;
+        background-color: #111;
+        width: 100%;
+        margin-bottom: 20px;
+        border-radius: 2px;
+        overflow: hidden;
+    }
+    .rm-meter-fill { height: 100%; }
+
+    /* Tactical Buttons */
+    .rm-btn {
+        background-color: transparent;
+        padding: 12px 24px;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: inline-block;
+        text-align: center;
+        border: 1px solid #444;
+        color: #FFF;
+    }
+    .rm-btn:hover { background-color: #FFF; color: #000; border-color: #FFF; text-decoration: none;}
+
+    .rm-btn-primary { border-color: #0088FF; color: #0088FF; }
+    .rm-btn-primary:hover { background-color: #0088FF; color: #000; border-color: #0088FF; }
+
+    .rm-btn-sm { padding: 8px 15px; font-size: 0.8rem; letter-spacing: 1px; flex: 1; }
+    
+    /* Error Alert */
+    .rm-alert-warning {
+        background-color: rgba(255, 153, 0, 0.05);
+        border: 1px solid #FF9900;
+        border-left: 4px solid #FF9900;
+        color: #FF9900;
+        padding: 15px 20px;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.85rem;
+        margin-bottom: 25px;
+        text-transform: uppercase;
+    }
+</style>
+
+<div class="rm-theme-wrapper">
+    <div class="rm-container">
+        
+        <h2 class="rm-header">Global <span>Query Terminal</span></h2>
+        <div class="rm-subtitle">
+            System Instruction: Interface directly with LCSC database. Enter specification parameters.
+        </div>
+
+        <!-- Search Panel -->
+        <div class="rm-panel">
+            <form asp-action="Search" method="post">
+                <div class="row align-items-end">
+                    <div class="col-md-8 mb-3 mb-md-0">
+                        <label class="rm-input-label">Description / Parameters</label>
+                        <input type="text" 
+                               name="Keyword" 
+                               class="rm-text-input" 
+                               value="@Model.Keyword" 
+                               placeholder="e.g. 10uF Capacitor 0402 6.3V, NPN Transistor SOT-23" 
+                               autocomplete="off"
+                               required />
+                    </div>
+                    <div class="col-md-2 mb-3 mb-md-0">
+                        <label class="rm-input-label">Output Limit</label>
+                        <select name="Limit" class="rm-text-input">
+                            <option value="5">TOP 05</option>
+                            <option value="10" selected>TOP 10</option>
+                            <option value="20">TOP 20</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="rm-btn rm-btn-primary w-100">
+                            [ SCAN ]
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- System Alerts -->
+        @if (!string.IsNullOrEmpty(Model.Error))
+        {
+            <div class="rm-alert-warning">
+                [!] EXCEPTION: @Model.Error
+            </div>
+        }
+
+        <!-- Results Matrix -->
+        @if (Model.Results.Any())
+        {
+            <div style="border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div class="rm-mono" style="color: #0088FF; text-transform: uppercase; font-size: 1.1rem;">
+                    TARGET: <span style="color: #FFF;">@Model.Keyword</span>
+                </div>
+                <div class="rm-badge" style="background-color: #111; border: 1px solid #333; color: #888;">
+                    NODES FOUND: @Model.TotalFound
+                </div>
+            </div>
+
+            <div class="row">
+                @foreach (var part in Model.Results)
+                {
+                    // Logic to determine Richard Mille neon colors
+                    var matchColorHex = part.MatchScore >= 80 ? "#39FF14" : part.MatchScore >= 50 ? "#FF9900" : "#FF073A";
+                    var matchBgHex = part.MatchScore >= 80 ? "rgba(57, 255, 20, 0.1)" : part.MatchScore >= 50 ? "rgba(255, 153, 0, 0.1)" : "rgba(255, 7, 58, 0.1)";
+
+                    var stockNum = int.TryParse(part.Stock, out var s) ? s : 0;
+                    var stockColorHex = stockNum > 1000 ? "#39FF14" : stockNum > 0 ? "#FF9900" : "#FF073A";
+
+                    <div class="col-lg-6 mb-4">
+                        <div class="rm-card" style="border-top-color: @matchColorHex;">
+                            
+                            <!-- Card Header (Part Numbers & Score) -->
+                            <div class="rm-card-header">
+                                <div>
+                                    <span class="rm-badge" style="background-color: #111; border: 1px solid #333; color: #FFF; margin-right: 5px;">
+                                        LCSC: @part.LcscPartNumber
+                                    </span>
+                                    @if (!string.IsNullOrEmpty(part.MpnNumber))
+                                    {
+                                        <span class="rm-badge" style="background-color: rgba(0, 136, 255, 0.1); border: 1px solid #0088FF; color: #0088FF;">
+                                            MPN: @part.MpnNumber
+                                        </span>
+                                    }
+                                </div>
+                                <span class="rm-badge" style="background-color: @matchBgHex; border: 1px solid @matchColorHex; color: @matchColorHex;">
+                                    @part.MatchScore% MATCH
+                                </span>
+                            </div>
+
+                            <!-- Card Body -->
+                            <div style="flex-grow: 1;">
+                                <div class="rm-mono" style="font-size: 1.05rem; font-weight: bold; color: #FFF; margin-bottom: 20px;">
+                                    @part.Description
+                                </div>
+
+                                <div class="rm-data-grid">
+                                    @if (!string.IsNullOrEmpty(part.Manufacturer))
+                                    {
+                                        <div class="rm-data-item">
+                                            <span class="rm-data-label">Manufacturer</span>
+                                            <span class="rm-data-value">@part.Manufacturer</span>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(part.Package))
+                                    {
+                                        <div class="rm-data-item">
+                                            <span class="rm-data-label">Package</span>
+                                            <span class="rm-data-value">@part.Package</span>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(part.Category))
+                                    {
+                                        <div class="rm-data-item">
+                                            <span class="rm-data-label">Category</span>
+                                            <span class="rm-data-value" style="font-size: 0.8rem;">@part.Category</span>
+                                        </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(part.Price))
+                                    {
+                                        <div class="rm-data-item">
+                                            <span class="rm-data-label">Unit Price</span>
+                                            <span class="rm-data-value rm-mono" style="color: #39FF14;">@part.Price</span>
+                                        </div>
+                                    }
+                                    <div class="rm-data-item">
+                                        <span class="rm-data-label">Inventory Stock</span>
+                                        <span class="rm-data-value rm-mono" style="color: @stockColorHex;">
+                                            @(string.IsNullOrEmpty(part.Stock) ? "UNKNOWN" : $"{part.Stock} UNITS")
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Match Meter -->
+                                <div class="rm-meter">
+                                    <div class="rm-meter-fill" style="width: @part.MatchScore%; background-color: @matchColorHex; box-shadow: 0 0 8px @matchColorHex;"></div>
+                                </div>
+                            </div>
+
+                            <!-- Card Footer (Links) -->
+                            <div style="display: flex; gap: 10px; margin-top: auto;">
+                                @if (!string.IsNullOrEmpty(part.ProductUrl))
+                                {
+                                    <a href="@part.ProductUrl" target="_blank" class="rm-btn rm-btn-sm rm-btn-primary">
+                                        [🛒] VIEW NODE
+                                    </a>
+                                }
+                                @if (!string.IsNullOrEmpty(part.DatasheetUrl))
+                                {
+                                    <a href="@part.DatasheetUrl" target="_blank" class="rm-btn rm-btn-sm" style="color: #888; border-color: #444;">
+                                        [📄] DATASHEET
+                                    </a>
+                                }
+                                @if (!string.IsNullOrEmpty(part.MpnNumber))
+                                {
+                                    <a asp-controller="Verify" asp-action="Index" asp-route-partNumber="@part.MpnNumber" class="rm-btn rm-btn-sm" style="color: #39FF14; border-color: #39FF14;">
+                                        [🔍] VERIFY
+                                    </a>
+                                }
+                            </div>
+
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+
+    </div>
+</div>

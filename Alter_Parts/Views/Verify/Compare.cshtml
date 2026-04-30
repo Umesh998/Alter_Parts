@@ -1,0 +1,241 @@
+﻿@* @model Alter_Parts.Models.CompareRequest
+
+@{
+    ViewData["Title"] = "Compare Original vs Alternate";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow-sm">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">⚖️ Original vs Alternate — Which Should I Use?</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        Enter both part numbers and your required description.
+                        We'll compare them and tell you which one to use.
+                    </p>
+
+                    <form asp-action="Compare" method="post">
+                        <div class="mb-3">
+                            <label asp-for="OriginalPart" class="form-label fw-bold"></label>
+                            <input asp-for="OriginalPart" class="form-control"
+                                   placeholder="e.g. LM358N" />
+                            <span asp-validation-for="OriginalPart" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="AlternatePart" class="form-label fw-bold"></label>
+                            <input asp-for="AlternatePart" class="form-control"
+                                   placeholder="e.g. LM358P" />
+                            <span asp-validation-for="AlternatePart" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label fw-bold"></label>
+                            <textarea asp-for="Description" class="form-control" rows="3"
+                                          placeholder="e.g. Dual Op-Amp, 1MHz, 3-32V supply, DIP-8 package">
+                            </textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100">
+                                ⚖️ Compare & Decide
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+    } *@
+
+
+
+
+
+
+
+
+@model Alter_Parts.Models.CompareRequest
+
+@{
+    ViewData["Title"] = "Compare Original vs Alternate";
+}
+
+<!-- Import Technical Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+
+<style>
+    /* ── RICHARD MILLE DARK THEME ── */
+    .rm-theme-wrapper {
+        background-color: #050505;
+        color: #E0E0E0;
+        font-family: 'Rajdhani', sans-serif;
+        padding: 40px 0;
+        min-height: 100vh;
+    }
+
+    .rm-container {
+        max-width: 800px; /* Narrower for a focused terminal */
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Architectural Headers */
+    .rm-header {
+        font-size: 2.2rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 15px;
+        margin-bottom: 10px;
+        color: #FFFFFF;
+    }
+    .rm-header span { color: #39FF14; /* Neon Green Accent for Compare */ }
+    
+    .rm-subtitle {
+        font-family: 'Space Mono', monospace;
+        color: #888;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+    }
+
+    /* Engineered Panels */
+    .rm-panel {
+        background-color: #0A0A0A;
+        border: 1px solid #1A1A1A;
+        border-top: 3px solid #39FF14;
+        padding: 40px 35px;
+        margin-bottom: 30px;
+    }
+
+    /* Form Inputs */
+    .rm-input-label {
+        display: block;
+        color: #AAA;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+    }
+
+    .rm-text-input {
+        display: block;
+        width: 100%;
+        padding: 14px 15px;
+        font-family: 'Space Mono', monospace;
+        font-size: 1rem;
+        color: #FFF;
+        background-color: #050505;
+        border: 1px solid #333;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+    .rm-text-input:focus {
+        border-color: #39FF14;
+        box-shadow: 0 0 10px rgba(57, 255, 20, 0.1);
+    }
+
+    .rm-text-input::placeholder {
+        color: #444;
+    }
+
+    textarea.rm-text-input {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    /* Validation Errors */
+    .rm-validation-text {
+        color: #FF073A;
+        font-size: 0.8rem;
+        font-family: 'Space Mono', monospace;
+        margin-top: 8px;
+        display: block;
+        text-transform: uppercase;
+    }
+
+    /* Tactical Buttons */
+    .rm-btn {
+        background-color: transparent;
+        padding: 16px 28px;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: block;
+        width: 100%;
+        text-align: center;
+        border: 1px solid transparent;
+    }
+
+    .rm-btn-primary { 
+        color: #39FF14; 
+        border-color: #39FF14; 
+    }
+    .rm-btn-primary:hover { 
+        background-color: #39FF14; 
+        color: #000; 
+    }
+</style>
+
+<div class="rm-theme-wrapper">
+    <div class="rm-container">
+        
+        <h2 class="rm-header">Differential <span>Analysis</span></h2>
+        <div class="rm-subtitle">
+            System Instruction: Input primary and alternate node IDs to calculate specification deltas and substitution viability.
+        </div>
+
+        <div class="rm-panel">
+            <form asp-action="Compare" method="post">
+                
+                <div style="margin-bottom: 30px;">
+                    <label asp-for="OriginalPart" class="rm-input-label">Primary Node ID</label>
+                    <input asp-for="OriginalPart" class="rm-text-input" placeholder="e.g. LM358N" autocomplete="off" />
+                    <span asp-validation-for="OriginalPart" class="rm-validation-text"></span>
+                </div>
+
+                <div style="margin-bottom: 30px;">
+                    <label asp-for="AlternatePart" class="rm-input-label">Alternate Node ID</label>
+                    <input asp-for="AlternatePart" class="rm-text-input" placeholder="e.g. LM358P" autocomplete="off" />
+                    <span asp-validation-for="AlternatePart" class="rm-validation-text"></span>
+                </div>
+
+                <div style="margin-bottom: 40px;">
+                    <label asp-for="Description" class="rm-input-label">Baseline Parameters</label>
+                    <textarea asp-for="Description" class="rm-text-input" rows="4" placeholder="e.g. Dual Op-Amp, 1MHz, 3-32V supply, DIP-8 package"></textarea>
+                    <span asp-validation-for="Description" class="rm-validation-text"></span>
+                </div>
+
+                <button type="submit" class="rm-btn rm-btn-primary">
+                    [ EXECUTE COMPARISON ALGORITHM ]
+                </button>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

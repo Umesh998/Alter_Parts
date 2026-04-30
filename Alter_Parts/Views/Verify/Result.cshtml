@@ -1,0 +1,70 @@
+﻿@model Alter_Parts.Models.VerifyResult
+
+@if (Model?.NexarResult != null)
+{
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            @await Html.PartialAsync(
+                "_VerifySourceCard", Model.NexarResult)
+        </div>
+    </div>
+}
+else
+{
+    <div class="alert alert-warning">
+        No data returned from Nexar for this part.
+    </div>
+}
+
+@{
+    ViewData["Title"] = "Verification Result";
+    var overallClass = Model.OverallVerdict.StartsWith("✅") ? "alert-success"
+                     : Model.OverallVerdict.StartsWith("❌") ? "alert-danger"
+                     : "alert-warning";
+}
+
+<div class="container mt-4">
+    <h3>🔍 Verification Result</h3>
+
+    <!-- Part Info -->
+    <div class="card mb-3 shadow-sm">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <strong>Part Number:</strong>
+                    <span class="ms-2 badge bg-dark fs-6">@Model.PartNumber</span>
+                </div>
+                <div class="col-md-6">
+                    <strong>Your Description:</strong>
+                    <span class="ms-2 text-muted">@Model.UserDescription</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overall Verdict -->
+    <div class="alert @overallClass fw-bold fs-6 mb-4">
+        @Model.OverallVerdict
+    </div>
+
+    <!-- DigiKey + Mouser Side by Side -->
+    <div class="row">
+
+        <!-- DigiKey -->
+        <div class="col-md-6 mb-3">
+            @await Html.PartialAsync("_VerifySourceCard", Model.DigiKeyResult)
+        </div>
+
+        <!-- Mouser -->
+        <div class="col-md-6 mb-3">
+            @await Html.PartialAsync("_VerifySourceCard", Model.MouserResult)
+        </div>
+
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="mt-3">
+        <a asp-action="Index" class="btn btn-primary">🔍 Verify Another Part</a>
+        <a asp-controller="Bom" asp-action="Upload" class="btn btn-secondary ms-2">📋 Back to BOM Upload</a>
+    </div>
+</div>

@@ -1,0 +1,326 @@
+﻿@* @model Alter_Parts.Models.VerifySource
+
+@if (Model == null)
+{
+    <div class="card border-secondary">
+        <div class="card-body text-muted">
+            No data available
+        </div>
+    </div>
+    return; // ← stops rendering if null
+}
+
+@{
+    var badgeColor = Model.Source == "DigiKey" ? "bg-primary" :
+                      Model.Source == "Mouser" ? "bg-success" :
+                      Model.Source == "Nexar" ? "bg-dark" :
+                                                  "bg-secondary";
+    var verdictClass = Model.MatchVerdict?.StartsWith("✅") == true ? "success"
+                     : Model.MatchVerdict?.StartsWith("❌") == true ? "danger"
+                     : "warning";
+}
+
+<div class="card h-100 shadow-sm border-@verdictClass">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="badge @badgeColor fs-6">@Model.Source</span>
+        <span class="fw-bold text-@verdictClass">@Model.MatchVerdict</span>
+    </div>
+    <div class="card-body">
+        @if (!string.IsNullOrEmpty(Model.FetchedDescription))
+        {
+            <!-- Fetched Description -->
+            <div class="mb-3">
+                <small class="text-muted">Description from @Model.Source</small>
+                <p class="fw-bold mb-0">@Model.FetchedDescription</p>
+            </div>
+
+            <hr />
+
+            <!-- Key Details -->
+            <table class="table table-sm table-borderless mb-0">
+                <tbody>
+                    @if (!string.IsNullOrEmpty(Model.Manufacturer))
+                    {
+                        <tr>
+                            <td class="text-muted" style="width:40%">Manufacturer</td>
+                            <td><strong>@Model.Manufacturer</strong></td>
+                        </tr>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Category))
+                    {
+                        <tr>
+                            <td class="text-muted">Category</td>
+                            <td>@Model.Category</td>
+                        </tr>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Package) && Model.Package != "N/A")
+                    {
+                        <tr>
+                            <td class="text-muted">Package</td>
+                            <td>@Model.Package</td>
+                        </tr>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Stock))
+                    {
+                        <tr>
+                            <td class="text-muted">Stock</td>
+                            <td>@Model.Stock</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <!-- Specs (top 8 only) -->
+            @if (Model.Specs != null && Model.Specs.Count > 0)
+            {
+                <hr />
+                <small class="text-muted">Specifications</small>
+                <table class="table table-sm table-striped mt-1">
+                    <tbody>
+                        @foreach (var spec in Model.Specs.Take(8))
+                        {
+                            <tr>
+                                <td class="text-muted" style="width:50%">@spec.Key</td>
+                                <td>@spec.Value</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+
+            <!-- Links -->
+            <div class="mt-2">
+                @if (!string.IsNullOrEmpty(Model.DatasheetUrl))
+                {
+                    <a href="@Model.DatasheetUrl" target="_blank"
+                           class="btn btn-sm btn-outline-secondary me-1">
+                        📄 Datasheet
+                    </a>
+                }
+                @if (!string.IsNullOrEmpty(Model.ProductUrl))
+                {
+                    <a href="@Model.ProductUrl" target="_blank"
+                           class="btn btn-sm btn-outline-primary">
+                        🛒 View on @Model.Source
+                    </a>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-muted mt-2">No data available from @Model.Source</p>
+        }
+    </div>
+</div> *@
+
+
+
+
+
+
+
+
+
+
+@model Alter_Parts.Models.VerifySource
+
+@if (Model == null)
+{
+    <div style="background-color: #0A0A0A; border: 1px dashed #333; padding: 30px 20px; color: #555; font-family: 'Space Mono', monospace; text-align: center; text-transform: uppercase; letter-spacing: 2px;">
+        [ NO DATA STREAM DETECTED ]
+    </div>
+    return; // ← stops rendering if null
+}
+
+@{
+    // Theme Colors Mapping
+    var sourceHex = Model.Source == "DigiKey" ? "#0088FF" :
+                    Model.Source == "Mouser" ? "#39FF14" :
+                    Model.Source == "LCSC" ? "#FF073A" :
+                    Model.Source == "Nexar" ? "#FF9900" : "#888888";
+
+    var sourceBgHex = Model.Source == "DigiKey" ? "rgba(0, 136, 255, 0.1)" :
+                      Model.Source == "Mouser" ? "rgba(57, 255, 20, 0.1)" :
+                      Model.Source == "LCSC" ? "rgba(255, 7, 58, 0.1)" :
+                      Model.Source == "Nexar" ? "rgba(255, 153, 0, 0.1)" : "rgba(255, 255, 255, 0.05)";
+
+    var verdictHex = Model.MatchVerdict?.StartsWith("✅") == true ? "#39FF14" :
+                     Model.MatchVerdict?.StartsWith("❌") == true ? "#FF073A" : "#FF9900";
+}
+
+<style>
+    /* Scoped Styles for the Verify Source Card */
+    .rm-vs-card {
+        background-color: #0A0A0A;
+        border: 1px solid #222;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        transition: border-color 0.3s ease;
+    }
+    .rm-vs-card:hover { border-color: #444; }
+
+    .rm-vs-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #151515;
+        padding: 15px 20px;
+        background-color: rgba(255,255,255,0.01);
+    }
+
+    .rm-vs-body {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .rm-vs-label {
+        color: #666;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 4px;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 600;
+    }
+
+    .rm-vs-value {
+        color: #E0E0E0;
+        font-size: 0.9rem;
+        font-family: 'Space Mono', monospace;
+        font-weight: bold;
+    }
+
+    .rm-vs-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px 10px;
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #151515;
+    }
+
+    .rm-vs-spec-row {
+        display: flex;
+        justify-content: space-between;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.75rem;
+        padding: 6px 0;
+        border-bottom: 1px dashed #222;
+    }
+    .rm-vs-spec-row:last-child { border-bottom: none; }
+
+    .rm-vs-btn {
+        background-color: transparent;
+        padding: 8px 16px;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: inline-block;
+        border: 1px solid transparent;
+        text-align: center;
+    }
+    .rm-vs-btn:hover { text-decoration: none; }
+</style>
+
+<div class="rm-vs-card" style="border-top: 3px solid @verdictHex;">
+    
+    <!-- Card Header -->
+    <div class="rm-vs-header">
+        <span style="background-color: @sourceBgHex; color: @sourceHex; border: 1px solid @sourceHex; padding: 4px 10px; font-family: 'Space Mono', monospace; font-size: 0.8rem; font-weight: bold; text-transform: uppercase;">
+            @Model.Source
+        </span>
+        <span style="color: @verdictHex; font-family: 'Rajdhani', sans-serif; font-size: 1.05rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">
+            @Model.MatchVerdict
+        </span>
+    </div>
+
+    <!-- Card Body -->
+    <div class="rm-vs-body">
+        @if (!string.IsNullOrEmpty(Model.FetchedDescription))
+        {
+            <!-- Fetched Description -->
+            <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid #151515;">
+                <div class="rm-vs-label">Data Stream Description</div>
+                <div class="rm-vs-value" style="color: #FFF;">@Model.FetchedDescription</div>
+            </div>
+
+            <!-- Key Details Grid -->
+            <div class="rm-vs-grid">
+                @if (!string.IsNullOrEmpty(Model.Manufacturer))
+                {
+                    <div>
+                        <div class="rm-vs-label">Manufacturer</div>
+                        <div class="rm-vs-value">@Model.Manufacturer</div>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model.Category))
+                {
+                    <div>
+                        <div class="rm-vs-label">Category</div>
+                        <div class="rm-vs-value" style="font-size: 0.8rem;">@Model.Category</div>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model.Package) && Model.Package != "N/A")
+                {
+                    <div>
+                        <div class="rm-vs-label">Package</div>
+                        <div class="rm-vs-value">@Model.Package</div>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model.Stock))
+                {
+                    <div>
+                        <div class="rm-vs-label">Inventory</div>
+                        <div class="rm-vs-value" style="color: #39FF14;">@Model.Stock</div>
+                    </div>
+                }
+            </div>
+
+            <!-- Specs Matrix (Top 8) -->
+            @if (Model.Specs != null && Model.Specs.Count > 0)
+            {
+                <div style="margin-bottom: 25px; flex-grow: 1;">
+                    <div class="rm-vs-label" style="color: #0088FF; margin-bottom: 10px;">Technical Parameters</div>
+                    <div>
+                        @foreach (var spec in Model.Specs.Take(8))
+                        {
+                            <div class="rm-vs-spec-row">
+                                <span style="color: #888;">@spec.Key</span>
+                                <span style="color: #E0E0E0; text-align: right; max-width: 60%; word-break: break-word;">@spec.Value</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Tactical Links -->
+            <div style="display: flex; gap: 10px; margin-top: auto;">
+                @if (!string.IsNullOrEmpty(Model.DatasheetUrl))
+                {
+                    <a href="@Model.DatasheetUrl" target="_blank" class="rm-vs-btn" style="color: #888; border-color: #444;" onmouseover="this.style.backgroundColor='#FFF'; this.style.borderColor='#FFF'; this.style.color='#000';" onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#444'; this.style.color='#888';">
+                        [📄] DATASHEET
+                    </a>
+                }
+                @if (!string.IsNullOrEmpty(Model.ProductUrl))
+                {
+                    <a href="@Model.ProductUrl" target="_blank" class="rm-vs-btn" style="color: @sourceHex; border-color: @sourceHex;" onmouseover="this.style.backgroundColor='@sourceHex'; this.style.color='#000';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='@sourceHex';">
+                        [🛒] VIEW
+                    </a>
+                }
+            </div>
+        }
+        else
+        {
+            <div style="color: #666; font-family: 'Space Mono', monospace; font-size: 0.85rem; padding: 20px 0;">
+                > No parameters extracted from @Model.Source node.
+            </div>
+        }
+    </div>
+</div>

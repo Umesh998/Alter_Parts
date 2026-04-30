@@ -1,0 +1,464 @@
+﻿@model Alter_Parts.Models.PartDetails
+
+@{
+    var scoreStr = Model.Specs
+        .GetValueOrDefault("Match Score", "0")
+        .Replace("%", "");
+    double.TryParse(scoreStr, out var matchScore);
+
+    var matchColor =
+        matchScore >= 80 ? "success" :
+        matchScore >= 50 ? "warning" : "secondary";
+
+    var stockNum = long.TryParse(Model.Stock, out var s)
+        ? s : 0;
+    var stockColor =
+        stockNum > 1000 ? "success" :
+        stockNum > 0 ? "warning" : "danger";
+
+    var unitPrice = Model.Specs
+        .GetValueOrDefault("Unit Price", "N/A");
+
+    var sourceBadge =
+     Model.Source == "DigiKey" ? "bg-primary" :
+     Model.Source == "Mouser" ? "bg-success" :
+     Model.Source == "LCSC" ? "bg-danger" :
+                                 "bg-secondary";
+
+    var sourcePN = Model.Source == "DigiKey"
+        ? Model.Specs.GetValueOrDefault("DigiKey PN", "")
+        : Model.Specs.GetValueOrDefault("Mouser PN", "");
+}
+
+<style>
+    /* Force text to black regardless of Bootstrap/Theme settings */
+    .dark-text { color: #000 !important; }
+    .dark-label { color: #222 !important; font-weight: 600; }
+</style>
+
+<div class="col-md-6 mb-3">
+    <div class="card h-100 shadow-sm border-@matchColor">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <span class="badge @sourceBadge me-1">
+                    @Model.Source
+                </span>
+                <span class="badge bg-dark me-1">
+                    @Model.Mpn
+                </span>
+                @if (!string.IsNullOrEmpty(sourcePN))
+                {
+                    <span class="badge bg-secondary small">
+                        @sourcePN
+                    </span>
+                }
+            </div>
+            <span class="badge bg-@matchColor">
+                @matchScore% match
+            </span>
+        </div>
+
+        <div class="card-body">
+            <p class="fw-bold mb-2 small dark-text">@Model.Description</p>
+
+            <div class="row g-1 small mb-2">
+                @if (!string.IsNullOrEmpty(Model.Manufacturer))
+                {
+                    <div class="col-6">
+                        <span class="dark-label">Manufacturer:</span>
+                        <strong class="dark-text">@Model.Manufacturer</strong>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model.Category))
+                {
+                    <div class="col-6">
+                        <span class="dark-label">Category:</span>
+                        <span class="dark-text">@Model.Category</span>
+                    </div>
+                }
+                @if (Model.Specs.TryGetValue("Package / Case", out var pkg) || Model.Specs.TryGetValue("Case/Package", out pkg))
+                {
+                    <div class="col-6">
+                        <span class="dark-label">Package:</span>
+                        <strong class="dark-text">@pkg</strong>
+                    </div>
+                }
+            </div>
+
+            <div class="d-flex gap-3 align-items-center mb-2">
+                <div>
+                    <span class="dark-label small">Price:</span>
+                    <strong class="text-success">@unitPrice</strong>
+                </div>
+                <div>
+                    <span class="dark-label small">Stock:</span>
+                    <span class="badge bg-@stockColor">
+                        @(stockNum > 0
+                            ? $"{stockNum:N0} units"
+                            : Model.Stock)
+                    </span>
+                </div>
+            </div>
+
+            <div class="progress mb-2" style="height:6px">
+                <div class="progress-bar bg-@matchColor"
+                     style="width:@matchScore%"></div>
+            </div>
+
+            @{
+                var displaySpecs = Model.Specs
+                    .Where(s =>
+                        s.Key != "Unit Price" &&
+                        s.Key != "Match Score" &&
+                        s.Key != "DigiKey PN" &&
+                        s.Key != "Mouser PN")
+                    .Take(4).ToList();
+            }
+            @if (displaySpecs.Any())
+            {
+                <div class="d-flex flex-wrap gap-1 mt-1">
+                    @foreach (var spec in displaySpecs)
+                    {
+                        <span class="badge bg-light border small dark-text">
+                            @spec.Key: @spec.Value
+                        </span>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="card-footer bg-transparent">
+            <div class="d-flex gap-2 flex-wrap">
+                @if (!string.IsNullOrEmpty(Model.ProductUrl))
+                {
+                    <a href="@Model.ProductUrl" target="_blank"
+                       class="btn btn-sm btn-outline-@(Model.Source == "DigiKey" ? "primary" : "success")">
+                        🛒 @Model.Source
+                    </a>
+                }
+                @if (!string.IsNullOrEmpty(Model.DatasheetUrl))
+                {
+                    <a href="@Model.DatasheetUrl" target="_blank"
+                       class="btn btn-sm btn-outline-secondary">
+                        📄 Datasheet
+                    </a>
+                }
+                @if (!string.IsNullOrEmpty(Model.Mpn))
+                {
+                    <a asp-controller="Verify"
+                       asp-action="Index"
+                       asp-route-partNumber="@Model.Mpn"
+                       class="btn btn-sm btn-outline-dark">
+                        🔍 Verify
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+@* @model Alter_Parts.Models.PartDetails
+
+@{
+    var scoreStr = Model.Specs
+        .GetValueOrDefault("Match Score", "0")
+        .Replace("%", "");
+    double.TryParse(scoreStr, out var matchScore);
+
+    // Richard Mille Match Neon Colors
+    var matchHex = matchScore >= 80 ? "#39FF14" : matchScore >= 50 ? "#FF9900" : "#FF073A";
+    var matchBgHex = matchScore >= 80 ? "rgba(57, 255, 20, 0.1)" : matchScore >= 50 ? "rgba(255, 153, 0, 0.1)" : "rgba(255, 7, 58, 0.1)";
+
+    var stockNum = long.TryParse(Model.Stock, out var s) ? s : 0;
+    
+    // Stock Neon Colors
+    var stockHex = stockNum > 1000 ? "#39FF14" : stockNum > 0 ? "#FF9900" : "#FF073A";
+
+    var unitPrice = Model.Specs.GetValueOrDefault("Unit Price", "N/A");
+
+    // Dynamic Source Colors
+    var sourceHex = Model.Source == "DigiKey" ? "#0088FF" :
+                    Model.Source == "Mouser" ? "#39FF14" :
+                    Model.Source == "LCSC" ? "#FF073A" : "#888888";
+
+    var sourceBgHex = Model.Source == "DigiKey" ? "rgba(0, 136, 255, 0.1)" :
+                      Model.Source == "Mouser" ? "rgba(57, 255, 20, 0.1)" :
+                      Model.Source == "LCSC" ? "rgba(255, 7, 58, 0.1)" : "rgba(255, 255, 255, 0.05)";
+
+    var sourcePN = Model.Source == "DigiKey"
+        ? Model.Specs.GetValueOrDefault("DigiKey PN", "")
+        : Model.Specs.GetValueOrDefault("Mouser PN", "");
+}
+
+<style>
+    .rm-part-card {
+        background-color: #0A0A0A;
+        border: 1px solid #222;
+        padding: 20px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: border-color 0.3s ease, transform 0.2s ease;
+    }
+    .rm-part-card:hover { border-color: #555; transform: translateY(-3px); }
+
+    .rm-card-btn {
+        background-color: transparent;
+        padding: 6px 12px;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: inline-block;
+        border: 1px solid transparent;
+    }
+    .rm-card-btn:hover { color: #000 !important; text-decoration: none; }
+</style>
+
+<div class="col-lg-6 mb-4">
+    <div class="rm-part-card" style="border-top: 3px solid @matchHex;">
+        
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #151515; padding-bottom: 15px; margin-bottom: 15px;">
+            <div>
+                <span style="background-color: @sourceBgHex; color: @sourceHex; border: 1px solid @sourceHex; padding: 4px 8px; font-family: 'Space Mono', monospace; font-size: 0.75rem; font-weight: bold; margin-right: 5px;">
+                    @Model.Source.ToUpper()
+                </span>
+                <span style="background-color: #111; color: #FFF; border: 1px solid #333; padding: 4px 8px; font-family: 'Space Mono', monospace; font-size: 0.75rem; font-weight: bold; margin-right: 5px;">
+                    @Model.Mpn
+                </span>
+                @if (!string.IsNullOrEmpty(sourcePN))
+                {
+                    <span style="background-color: #050505; color: #888; border: 1px solid #222; padding: 4px 8px; font-family: 'Space Mono', monospace; font-size: 0.7rem;">
+                        @sourcePN
+                    </span>
+                }
+            </div>
+            <span style="background-color: @matchBgHex; color: @matchHex; border: 1px solid @matchHex; padding: 4px 8px; font-family: 'Space Mono', monospace; font-size: 0.75rem; font-weight: bold;">
+                @matchScore% MATCH
+            </span>
+        </div>
+
+        <!-- Body -->
+        <div style="flex-grow: 1;">
+            <p style="font-family: 'Space Mono', monospace; font-size: 0.95rem; font-weight: bold; color: #FFF; margin-bottom: 15px;">
+                @Model.Description
+            </p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; font-family: 'Rajdhani', sans-serif;">
+                @if (!string.IsNullOrEmpty(Model.Manufacturer))
+                {
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="color: #666; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Manufacturer</span>
+                        <span style="color: #E0E0E0; font-size: 0.9rem; font-weight: 600;">@Model.Manufacturer</span>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model.Category))
+                {
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="color: #666; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Category</span>
+                        <span style="color: #E0E0E0; font-size: 0.85rem; font-weight: 600;">@Model.Category</span>
+                    </div>
+                }
+                @if (Model.Specs.TryGetValue("Package / Case", out var pkg) || Model.Specs.TryGetValue("Case/Package", out pkg))
+                {
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="color: #666; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Package</span>
+                        <span style="color: #E0E0E0; font-size: 0.9rem; font-weight: 600;">@pkg</span>
+                    </div>
+                }
+            </div>
+
+            <!-- Price + Stock -->
+            <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 15px;">
+                <div style="display: flex; flex-direction: column;">
+                    <span style="color: #666; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Unit Price</span>
+                    <span style="color: #39FF14; font-family: 'Space Mono', monospace; font-size: 0.95rem; font-weight: bold;">@unitPrice</span>
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                    <span style="color: #666; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px;">Inventory Stock</span>
+                    <span style="color: @stockHex; font-family: 'Space Mono', monospace; font-size: 0.95rem; font-weight: bold;">
+                        @(stockNum > 0 ? $"{stockNum:N0} UNITS" : Model.Stock.ToUpper())
+                    </span>
+                </div>
+            </div>
+
+            <!-- Match Luminous Bar -->
+            <div style="height: 4px; background-color: #111; width: 100%; margin-bottom: 15px; border-radius: 2px; overflow: hidden;">
+                <div style="height: 100%; width: @matchScore%; background-color: @matchHex; box-shadow: 0 0 8px @matchHex;"></div>
+            </div>
+
+            <!-- Specs Data Tags -->
+            @{
+                var displaySpecs = Model.Specs
+                    .Where(s => s.Key != "Unit Price" && s.Key != "Match Score" && s.Key != "DigiKey PN" && s.Key != "Mouser PN")
+                    .Take(4).ToList();
+            }
+            @if (displaySpecs.Any())
+            {
+                <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;">
+                    @foreach (var spec in displaySpecs)
+                    {
+                        <span style="background-color: rgba(255,255,255,0.05); color: #AAA; border: 1px solid #333; padding: 3px 6px; font-family: 'Space Mono', monospace; font-size: 0.7rem; text-transform: uppercase;">
+                            @spec.Key: <span style="color: #E0E0E0;">@spec.Value</span>
+                        </span>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Footer Terminal Links -->
+        <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
+            @if (!string.IsNullOrEmpty(Model.ProductUrl))
+            {
+                <a href="@Model.ProductUrl" target="_blank" class="rm-card-btn" style="border-color: @sourceHex; color: @sourceHex;" onmouseover="this.style.backgroundColor='@sourceHex'" onmouseout="this.style.backgroundColor='transparent'">
+                    [🛒] @Model.Source
+                </a>
+            }
+            @if (!string.IsNullOrEmpty(Model.DatasheetUrl))
+            {
+                <a href="@Model.DatasheetUrl" target="_blank" class="rm-card-btn" style="border-color: #444; color: #888;" onmouseover="this.style.backgroundColor='#FFF'; this.style.borderColor='#FFF';" onmouseout="this.style.backgroundColor='transparent'; this.style.borderColor='#444';">
+                    [📄] DATASHEET
+                </a>
+            }
+            @if (!string.IsNullOrEmpty(Model.Mpn))
+            {
+                <a asp-controller="Verify" asp-action="Index" asp-route-partNumber="@Model.Mpn" class="rm-card-btn" style="border-color: #FFF; color: #FFF;" onmouseover="this.style.backgroundColor='#FFF'; this.style.color='#000';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#FFF';">
+                    [🔍] VERIFY
+                </a>
+            }
+        </div>
+        
+    </div>
+</div> *@
+
+
+
+
+
+
+
+
+@* Code For the Richard Mille Theme *@
+
+
+@* @model Alter_Parts.Models.PartDetails
+
+@{
+    var scoreStr = Model.Specs
+        .GetValueOrDefault("Match Score", "0")
+        .Replace("%", "");
+    double.TryParse(scoreStr, out var matchScore);
+
+    // Richard Mille Neon Logic: Green (Match), Orange (Partial), Red (Low)
+    var matchHex = matchScore >= 80 ? "#39FF14" : matchScore >= 50 ? "#FF9900" : "#FF073A";
+    var matchBgHex = matchScore >= 80 ? "rgba(57, 255, 20, 0.1)" : matchScore >= 50 ? "rgba(255, 153, 0, 0.1)" : "rgba(255, 7, 58, 0.1)";
+
+    var stockNum = long.TryParse(Model.Stock, out var s) ? s : 0;
+    var stockHex = stockNum > 1000 ? "#39FF14" : stockNum > 0 ? "#FF9900" : "#FF073A";
+
+    var unitPrice = Model.Specs.GetValueOrDefault("Unit Price", "N/A");
+
+    // Dynamic Source Tag Colors
+    var sourceHex = Model.Source == "DigiKey" ? "#0088FF" :
+                    Model.Source == "Mouser" ? "#39FF14" :
+                    Model.Source == "LCSC" ? "#FF073A" : "#888888";
+
+    var sourceBgHex = Model.Source == "DigiKey" ? "rgba(0, 136, 255, 0.1)" :
+                      Model.Source == "Mouser" ? "rgba(57, 255, 20, 0.1)" :
+                      Model.Source == "LCSC" ? "rgba(255, 7, 58, 0.1)" : "rgba(255, 255, 255, 0.05)";
+
+    var sourcePN = Model.Source == "DigiKey"
+        ? Model.Specs.GetValueOrDefault("DigiKey PN", "")
+        : Model.Specs.GetValueOrDefault("Mouser PN", "");
+}
+
+<div class="col-lg-6 mb-4">
+    <div class="rm-part-card" style="border-top: 3px solid @matchHex; background-color: #0A0A0A; border: 1px solid #222; padding: 20px; height: 100%; display: flex; flex-direction: column; transition: border-color 0.3s ease;">
+        
+        <!-- Header: Source & Match Score -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #151515; padding-bottom: 15px; margin-bottom: 15px;">
+            <div>
+                <span style="background-color: @sourceBgHex; color: @sourceHex; border: 1px solid @sourceHex; padding: 4px 8px; font-family: 'Space Mono', monospace; font-size: 0.75rem; font-weight: bold; margin-right: 5px; text-transform: uppercase;">
+                    @Model.Source
+                </span>
+                <span style="background-color: #111; color: #FFF; border: 1px solid #333; padding: 4px 8px; font-family: 'Space Mono', monospace; font-size: 0.75rem; font-weight: bold;">
+                    @Model.Mpn
+                </span>
+                @if (!string.IsNullOrEmpty(sourcePN))
+                {
+                    <span style="background-color: #050505; color: #666; border: 1px solid #222; padding: 4px 8px; font-family: 'Space Mono', monospace; font-size: 0.7rem; margin-left: 5px;">
+                        @sourcePN
+                    </span>
+                }
+            </div>
+            <span style="background-color: @matchBgHex; color: @matchHex; border: 1px solid @matchHex; padding: 4px 8px; font-family: 'Space Mono', monospace; font-size: 0.75rem; font-weight: bold;">
+                @matchScore% MATCH
+            </span>
+        </div>
+
+        <!-- Body: Description & Manufacturing Data -->
+        <div style="flex-grow: 1;">
+            <p style="font-family: 'Space Mono', monospace; font-size: 0.95rem; font-weight: bold; color: #FFF; margin-bottom: 15px;">
+                @Model.Description
+            </p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                <div style="display: flex; flex-direction: column;">
+                    <span style="color: #666; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Manufacturer</span>
+                    <span style="color: #E0E0E0; font-size: 0.9rem; font-weight: 600;">@Model.Manufacturer</span>
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                    <span style="color: #666; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Stock Availability</span>
+                    <span style="color: @stockHex; font-family: 'Space Mono', monospace; font-size: 0.9rem; font-weight: bold;">
+                        @(stockNum > 0 ? $"{stockNum:N0} UNITS" : Model.Stock.ToUpper())
+                    </span>
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                    <span style="color: #666; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Unit Price</span>
+                    <span style="color: #39FF14; font-family: 'Space Mono', monospace; font-size: 0.9rem; font-weight: bold;">@unitPrice</span>
+                </div>
+                @if (Model.Specs.TryGetValue("Package / Case", out var pkg) || Model.Specs.TryGetValue("Case/Package", out pkg))
+                {
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="color: #666; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Package</span>
+                        <span style="color: #E0E0E0; font-size: 0.9rem;">@pkg</span>
+                    </div>
+                }
+            </div>
+
+            <!-- Luminous Progress Meter -->
+            <div style="height: 4px; background-color: #111; width: 100%; margin-bottom: 20px; border-radius: 2px; overflow: hidden;">
+                <div style="height: 100%; width: @matchScore%; background-color: @matchHex; box-shadow: 0 0 8px @matchHex;"></div>
+            </div>
+        </div>
+
+        <!-- Tactical Links -->
+        <div style="display: flex; gap: 10px; margin-top: auto;">
+            @if (!string.IsNullOrEmpty(Model.ProductUrl))
+            {
+                <a href="@Model.ProductUrl" target="_blank" style="border: 1px solid @sourceHex; color: @sourceHex; padding: 8px 16px; font-size: 0.85rem; text-decoration: none; font-weight: 700; font-family: 'Rajdhani'; text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s;" onmouseover="this.style.backgroundColor='@sourceHex'; this.style.color='#000';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='@sourceHex';">
+                    [🛒] @Model.Source
+                </a>
+            }
+            @if (!string.IsNullOrEmpty(Model.DatasheetUrl))
+            {
+                <a href="@Model.DatasheetUrl" target="_blank" style="border: 1px solid #444; color: #888; padding: 8px 16px; font-size: 0.85rem; text-decoration: none; font-family: 'Rajdhani'; text-transform: uppercase; letter-spacing: 1px;" onmouseover="this.style.backgroundColor='#FFF'; this.style.color='#000'; this.style.borderColor='#FFF';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#888'; this.style.borderColor='#444';">
+                    [📄] DATASHEET
+                </a>
+            }
+        </div>
+    </div>
+</div> *@

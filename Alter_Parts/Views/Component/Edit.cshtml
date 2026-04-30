@@ -1,0 +1,284 @@
+﻿@* @model Alter_Parts.Models.Alter
+
+@{
+    ViewData["Title"] = "Edit Entry";
+}
+
+<h2>Edit Entry</h2>
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Part_Id" />
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="form-group">
+    <label>Original Part Number</label>
+    <input asp-for="Original_Part_Number" class="form-control" />
+</div>
+
+<div class="form-group">
+    <label>Alter Part Number</label>
+    <input asp-for="Alter_Part_Number" class="form-control" />
+</div>
+
+<div class="form-group">
+    <label>Status</label>
+    <select asp-for="Status" class="form-control">
+        <option value="Pending">Pending</option>
+        <option value="Approved">Approved</option>
+        <option value="Rejected">Rejected</option>
+    </select>
+</div>
+
+<div class="form-group">
+    <label asp-for="ComparisonNotes" class="control-label">Your Notes</label>
+    <textarea asp-for="ComparisonNotes" class="form-control" rows="3" placeholder="Why is this compatible?"></textarea>
+    <span asp-validation-for="ComparisonNotes" class="text-danger"></span>
+</div>
+
+<button type="submit" class="btn btn-success">Save Changes</button>
+<a asp-action="More_Fruits" class="btn btn-secondary">Cancel</a>
+</form> *@
+
+
+
+
+
+
+
+
+
+
+
+
+@model Alter_Parts.Models.Alter
+
+@{
+    ViewData["Title"] = "Edit Entry";
+}
+
+<!-- Import Technical Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+
+<style>
+    /* ── RICHARD MILLE DARK THEME ── */
+    .rm-theme-wrapper {
+        background-color: #050505;
+        color: #E0E0E0;
+        font-family: 'Rajdhani', sans-serif;
+        padding: 40px 0;
+        min-height: 100vh;
+    }
+
+    .rm-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Architectural Headers */
+    .rm-header {
+        font-size: 2.2rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 15px;
+        margin-bottom: 10px;
+        color: #FFFFFF;
+    }
+    .rm-header span { color: #0088FF; /* Neon Blue Accent */ }
+    
+    .rm-subtitle {
+        font-family: 'Space Mono', monospace;
+        color: #888;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+    }
+
+    /* Engineered Panels */
+    .rm-panel {
+        background-color: #0A0A0A;
+        border: 1px solid #1A1A1A;
+        border-top: 3px solid #0088FF;
+        padding: 35px 30px;
+        margin-bottom: 30px;
+    }
+
+    /* Form Inputs */
+    .rm-input-label {
+        display: block;
+        color: #AAA;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+    }
+
+    .rm-text-input {
+        display: block;
+        width: 100%;
+        padding: 14px 15px;
+        font-family: 'Space Mono', monospace;
+        font-size: 1rem;
+        color: #FFF;
+        background-color: #050505;
+        border: 1px solid #333;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+    .rm-text-input:focus {
+        border-color: #0088FF;
+        box-shadow: 0 0 10px rgba(0, 136, 255, 0.1);
+    }
+
+    .rm-text-input::placeholder {
+        color: #444;
+    }
+
+    /* Custom Select Dropdown Styling */
+    select.rm-text-input {
+        appearance: none;
+        cursor: pointer;
+        /* Custom Neon Blue Arrow */
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230088FF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+        background-size: 15px;
+        padding-right: 40px;
+    }
+    
+    select.rm-text-input option {
+        background-color: #0A0A0A;
+        color: #FFF;
+        font-family: 'Space Mono', monospace;
+    }
+
+    /* Custom Textarea Styling */
+    textarea.rm-text-input {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    /* Validation Errors */
+    .rm-validation-text {
+        color: #FF073A;
+        font-size: 0.8rem;
+        font-family: 'Space Mono', monospace;
+        margin-top: 8px;
+        display: block;
+        text-transform: uppercase;
+    }
+
+    .rm-alert-danger {
+        background-color: rgba(255, 7, 58, 0.05);
+        border: 1px solid #FF073A;
+        border-left: 4px solid #FF073A;
+        color: #FF073A;
+        padding: 15px 20px;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.85rem;
+        margin-bottom: 25px;
+        text-transform: uppercase;
+    }
+
+    /* Tactical Buttons */
+    .rm-btn-group {
+        display: flex;
+        gap: 15px;
+        margin-top: 40px;
+    }
+    
+    .rm-btn {
+        background-color: transparent;
+        padding: 14px 28px;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        text-align: center;
+        flex: 1; /* Makes buttons equal width */
+    }
+
+    .rm-btn-primary { 
+        color: #0088FF; 
+        border: 1px solid #0088FF; 
+    }
+    .rm-btn-primary:hover { 
+        background-color: #0088FF; 
+        color: #000; 
+    }
+
+    .rm-btn-secondary { 
+        color: #888; 
+        border: 1px solid #444; 
+    }
+    .rm-btn-secondary:hover { 
+        background-color: #FFF; 
+        color: #000; 
+        border-color: #FFF;
+    }
+</style>
+
+<div class="rm-theme-wrapper">
+    <div class="rm-container">
+        
+        <h2 class="rm-header">Modify <span>Matrix Entry</span></h2>
+        <div class="rm-subtitle">
+            System Instruction: Update component pairing attributes and status.
+        </div>
+
+        <div class="rm-panel">
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="Part_Id" />
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="rm-alert-danger"></div>
+                }
+
+                <div style="margin-bottom: 25px;">
+                    <label class="rm-input-label">Original Part Number</label>
+                    <input asp-for="Original_Part_Number" class="rm-text-input" autocomplete="off" />
+                    <span asp-validation-for="Original_Part_Number" class="rm-validation-text"></span>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <label class="rm-input-label">Alternate Part Number</label>
+                    <input asp-for="Alter_Part_Number" class="rm-text-input" autocomplete="off" />
+                    <span asp-validation-for="Alter_Part_Number" class="rm-validation-text"></span>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <label class="rm-input-label">Validation Status</label>
+                    <select asp-for="Status" class="rm-text-input">
+                        <option value="Pending">PENDING</option>
+                        <option value="Approved">APPROVED</option>
+                        <option value="Rejected">REJECTED</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label asp-for="ComparisonNotes" class="rm-input-label">System Notes / Remarks</label>
+                    <textarea asp-for="ComparisonNotes" class="rm-text-input" rows="4" placeholder="Input compatibility parameters or engineering remarks..."></textarea>
+                    <span asp-validation-for="ComparisonNotes" class="rm-validation-text"></span>
+                </div>
+
+                <div class="rm-btn-group">
+                    <button type="submit" class="rm-btn rm-btn-primary">
+                        [+] COMMIT CHANGES
+                    </button>
+                    <a asp-action="More_Fruits" class="rm-btn rm-btn-secondary">
+                        [<] ABORT MODIFICATION
+                    </a>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>

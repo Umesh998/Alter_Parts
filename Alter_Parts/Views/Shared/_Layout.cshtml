@@ -1,0 +1,815 @@
+﻿@* <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Alter_Parts</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Alter_Parts.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Alter_Parts</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Component" asp-action="More_Fruits">Parts</a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link"
+                                   asp-controller="Verify"
+                                   asp-action="DescriptionSearch">
+                                🔍 Search by Description
+                            </a>
+                        </li>
+                       
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2026 - Alter_Parts - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+        
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+ *@
+
+
+
+
+
+
+
+@* 
+ Code for the Richard Mille Theme *@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Alter_Parts</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Alter_Parts.styles.css" asp-append-version="true" />
+
+    <!-- ── IMPORT GLOBAL TECHNICAL FONTS ── -->
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+
+    <style>
+        /* ── GLOBAL RICHARD MILLE DARK THEME ── */
+        body {
+            background-color: #050505;
+            color: #E0E0E0;
+            font-family: 'Rajdhani', sans-serif;
+        }
+
+        /* Master Navigation Bar */
+        .rm-navbar {
+            background-color: #0A0A0A;
+            border-bottom: 1px solid #1A1A1A;
+            border-top: 3px solid #0088FF;
+            padding: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .rm-navbar-brand {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #FFF !important;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        
+        .rm-navbar-brand span {
+            color: #0088FF;
+        }
+
+        .rm-nav-link {
+            color: #888 !important;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            transition: all 0.3s ease;
+            padding: 8px 15px !important;
+            border: 1px solid transparent;
+        }
+
+        .rm-nav-link:hover, .rm-nav-link:focus {
+            color: #39FF14 !important; /* Neon Green Hover */
+            border: 1px solid #333;
+            background-color: rgba(255,255,255,0.02);
+        }
+
+        /* Custom Toggler for Mobile */
+        .navbar-toggler {
+            border-color: #333;
+        }
+        .navbar-toggler-icon {
+            filter: invert(1); /* Forces the standard hamburger icon to be white */
+        }
+
+        /* Footer */
+        .rm-footer {
+            background-color: #050505;
+            border-top: 1px solid #151515 !important;
+            color: #444;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            padding: 25px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: auto;
+        }
+        
+        .rm-footer a {
+            color: #0088FF;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .rm-footer a:hover {
+            color: #FFF;
+        }
+        
+        /* Ensure the body stretches to push the footer down */
+        html, body { height: 100%; }
+        .wrapper { min-height: 100vh; display: flex; flex-direction: column; }
+        .main-content { flex: 1; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <nav class="navbar navbar-expand-sm navbar-toggleable-sm rm-navbar mb-3">
+                <div class="container-fluid">
+                    <a class="navbar-brand rm-navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ALTER<span>_PARTS</span></a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                        <ul class="navbar-nav flex-grow-1">
+                            <li class="nav-item">
+                                <a class="nav-link rm-nav-link" asp-area="" asp-controller="Home" asp-action="Index">[ SYSTEM_HOME ]</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link rm-nav-link" asp-controller="Component" asp-action="More_Fruits">[ DIRECTORY_MATRIX ]</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link rm-nav-link" asp-controller="Verify" asp-action="DescriptionSearch">[ 🔍 QUERY_TERMINAL ]</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link rm-nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">[ SECURITY_POLICY ]</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </header>
+        
+        <div class="container-fluid main-content">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+
+        <footer class="rm-footer text-center">
+            <div class="container">
+                &copy; 2026 SYSTEM LOG - ALTER_PARTS - <a asp-area="" asp-controller="Home" asp-action="Privacy">PRIVACY PROTOCOL</a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@* <!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Alter_Parts</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Alter_Parts.styles.css" asp-append-version="true" />
+
+    <!-- ── IMPORT GLOBAL TECHNICAL FONTS ── -->
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Mono&display=swap"
+          rel="stylesheet">
+
+    <style>
+        /* ── CSS VARIABLES — DARK THEME (default) ── */
+        :root {
+            --bg-body:        #050505;
+            --bg-navbar:      #0A0A0A;
+            --bg-card:        #0D0D0D;
+            --bg-input:       #0A0A0A;
+            --text-primary:   #E0E0E0;
+            --text-secondary: #888888;
+            --text-navbar:    #888888;
+            --border-color:   #1A1A1A;
+            --border-hover:   #333333;
+            --accent-blue:    #0088FF;
+            --accent-green:   #39FF14;
+            --shadow:         0 4px 20px rgba(0,0,0,0.5);
+            --navbar-top:     3px solid #0088FF;
+            --footer-bg:      #050505;
+            --table-header:   #0D0D0D;
+            --table-stripe:   #080808;
+            --badge-text:     #ffffff;
+        }
+
+        /* ── LIGHT THEME ── */
+        [data-theme="light"] {
+            --bg-body:        #f0f2f5;
+            --bg-navbar:      #0d1f3c;
+            --bg-card:        #ffffff;
+            --bg-input:       #ffffff;
+            --text-primary:   #1a1a2e;
+            --text-secondary: #555555;
+            --text-navbar:    #aab4c8;
+            --border-color:   #e0e4eb;
+            --border-hover:   #c0c8d8;
+            --accent-blue:    #0066cc;
+            --accent-green:   #00aa44;
+            --shadow:         0 4px 20px rgba(0,0,0,0.08);
+            --navbar-top:     3px solid #0066cc;
+            --footer-bg:      #e8eaf0;
+            --table-header:   #0d1f3c;
+            --table-stripe:   #f8f9fc;
+            --badge-text:     #ffffff;
+        }
+
+        /* ── GLOBAL ── */
+        * {
+            transition: background-color 0.3s ease,
+                        color            0.3s ease,
+                        border-color     0.3s ease;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color:            var(--text-primary);
+            font-family:      'Rajdhani', sans-serif;
+        }
+
+        /* ── NAVBAR ── */
+        .rm-navbar {
+            background-color: var(--bg-navbar);
+            border-bottom:    1px solid var(--border-color);
+            border-top:       var(--navbar-top);
+            padding:          15px 0;
+            box-shadow:       var(--shadow);
+        }
+
+        .rm-navbar-brand {
+            font-family:    'Space Mono', monospace;
+            font-size:      1.4rem;
+            font-weight:    700;
+            color:          #FFF !important;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .rm-navbar-brand span {
+            color: var(--accent-blue);
+        }
+
+        .rm-nav-link {
+            color:          var(--text-navbar) !important;
+            font-family:    'Space Mono', monospace;
+            font-size:      0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            transition:     all 0.3s ease;
+            padding:        8px 15px !important;
+            border:         1px solid transparent;
+        }
+
+        .rm-nav-link:hover,
+        .rm-nav-link:focus {
+            color:            var(--accent-green) !important;
+            border:           1px solid var(--border-hover);
+            background-color: rgba(255,255,255,0.02);
+        }
+
+        /* ── THEME TOGGLE BUTTON ── */
+        #theme-toggle {
+            font-family:     'Space Mono', monospace;
+            font-size:       0.75rem;
+            text-transform:  uppercase;
+            letter-spacing:  1.5px;
+            padding:         6px 14px;
+            border:          1px solid var(--border-hover);
+            background:      transparent;
+            color:           var(--text-navbar);
+            cursor:          pointer;
+            transition:      all 0.3s ease;
+            white-space:     nowrap;
+        }
+
+        #theme-toggle:hover {
+            color:            var(--accent-green);
+            border-color:     var(--accent-green);
+            box-shadow:       0 0 10px rgba(57,255,20,0.2);
+        }
+
+        /* ── CARDS ── */
+        .card {
+            background-color: var(--bg-card)      !important;
+            border-color:     var(--border-color) !important;
+            box-shadow:       var(--shadow);
+        }
+
+        .card-header,
+        .card-header.bg-dark {
+            background-color: var(--table-header) !important;
+            border-color:     var(--border-color) !important;
+            color:            var(--text-primary)  !important;
+        }
+
+        /* ── TABLES ── */
+        .table {
+            color:        var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        .table-dark,
+        thead.table-dark {
+            background-color: var(--table-header) !important;
+            color:            var(--text-primary)  !important;
+        }
+
+        .table-dark th {
+            background-color: var(--table-header) !important;
+            border-color:     var(--border-color) !important;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: var(--table-stripe) !important;
+            color:            var(--text-primary)  !important;
+        }
+
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: var(--table-stripe) !important;
+        }
+
+        /* ── INPUTS ── */
+        .form-control,
+        .form-select {
+            background-color: var(--bg-input)     !important;
+            border-color:     var(--border-color) !important;
+            color:            var(--text-primary)  !important;
+            font-family:      'Rajdhani', sans-serif;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--accent-blue)                    !important;
+            box-shadow:   0 0 0 3px rgba(0,136,255,0.15)       !important;
+            background-color: var(--bg-input)                   !important;
+        }
+
+        .form-control::placeholder {
+            color: var(--text-secondary) !important;
+        }
+
+        .form-label {
+            color: var(--text-primary) !important;
+        }
+
+        /* ── ALERTS ── */
+        .alert {
+            border-color: var(--border-color) !important;
+        }
+
+        .alert-success {
+            background-color: rgba(57,255,20,0.08)  !important;
+            color:            var(--text-primary)    !important;
+            border-color:     rgba(57,255,20,0.2)   !important;
+        }
+
+        .alert-danger {
+            background-color: rgba(255,50,50,0.08)  !important;
+            color:            var(--text-primary)    !important;
+            border-color:     rgba(255,50,50,0.2)   !important;
+        }
+
+        .alert-warning {
+            background-color: rgba(255,200,0,0.08)  !important;
+            color:            var(--text-primary)    !important;
+            border-color:     rgba(255,200,0,0.2)   !important;
+        }
+
+        .alert-info {
+            background-color: rgba(0,136,255,0.08)  !important;
+            color:            var(--text-primary)    !important;
+            border-color:     rgba(0,136,255,0.2)   !important;
+        }
+
+        /* ── BUTTONS ── */
+        .btn-primary {
+            background-color: var(--accent-blue) !important;
+            border-color:     var(--accent-blue) !important;
+            font-family:      'Space Mono', monospace;
+            letter-spacing:   1px;
+            font-size:        0.85rem;
+        }
+
+        .btn-primary:hover {
+            background-color: #0066cc !important;
+            border-color:     #0066cc !important;
+            box-shadow:       0 0 15px rgba(0,136,255,0.3);
+        }
+
+        .btn-success {
+            background-color: #00aa44 !important;
+            border-color:     #00aa44 !important;
+            font-family:      'Space Mono', monospace;
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-card)      !important;
+            border-color:     var(--border-color)  !important;
+            color:            var(--text-secondary) !important;
+            font-family:      'Space Mono', monospace;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--border-hover)  !important;
+            color:        var(--text-primary)   !important;
+        }
+
+        .btn-outline-primary {
+            color:        var(--accent-blue) !important;
+            border-color: var(--accent-blue) !important;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--accent-blue) !important;
+            color:            #fff               !important;
+        }
+
+        .btn-outline-secondary {
+            color:        var(--text-secondary) !important;
+            border-color: var(--border-color)   !important;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: var(--border-hover) !important;
+            color:            var(--text-primary)  !important;
+        }
+
+        .btn-outline-success {
+            color:        var(--accent-green) !important;
+            border-color: var(--accent-green) !important;
+        }
+
+        .btn-outline-success:hover {
+            background-color: var(--accent-green) !important;
+            color:            #000                !important;
+        }
+
+        .btn-info {
+            background-color: #0088FF !important;
+            border-color:     #0088FF !important;
+            color:            #fff    !important;
+            font-family:      'Space Mono', monospace;
+        }
+
+        .btn-warning {
+            background-color: #FFB300 !important;
+            border-color:     #FFB300 !important;
+            color:            #000    !important;
+            font-family:      'Space Mono', monospace;
+        }
+
+        .btn-danger {
+            background-color: #cc0000 !important;
+            border-color:     #cc0000 !important;
+            font-family:      'Space Mono', monospace;
+        }
+
+        /* ── BADGES ── */
+        .badge.bg-light {
+            color: var(--text-primary) !important;
+        }
+
+        /* ── PROGRESS ── */
+        .progress {
+            background-color: var(--border-color) !important;
+        }
+
+        /* ── PAGINATION ── */
+        .page-link {
+            background-color: var(--bg-card)     !important;
+            border-color:     var(--border-color) !important;
+            color:            var(--text-primary)  !important;
+            font-family:      'Space Mono', monospace;
+        }
+
+        .page-item.active .page-link {
+            background-color: var(--accent-blue) !important;
+            border-color:     var(--accent-blue) !important;
+            color:            #fff               !important;
+        }
+
+        /* ── NAV TABS ── */
+        .nav-tabs {
+            border-color: var(--border-color) !important;
+        }
+
+        .nav-tabs .nav-link {
+            color:        var(--text-secondary) !important;
+            border-color: transparent          !important;
+            font-family:  'Space Mono', monospace;
+            font-size:    0.8rem;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: var(--bg-card)    !important;
+            border-color:     var(--border-color)
+                              var(--border-color)
+                              var(--bg-card)   !important;
+            color:            var(--accent-blue) !important;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color:        var(--accent-green) !important;
+            border-color: var(--border-hover) !important;
+        }
+
+        /* ── TEXT ── */
+        .text-muted {
+            color: var(--text-secondary) !important;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            color:       var(--text-primary);
+            font-family: 'Space Mono', monospace;
+        }
+
+        /* ── MODAL ── */
+        .modal-content {
+            background-color: var(--bg-card)     !important;
+            border-color:     var(--border-color) !important;
+            color:            var(--text-primary)  !important;
+        }
+
+        .modal-header,
+        .modal-footer {
+            border-color: var(--border-color) !important;
+        }
+
+        /* ── DROPDOWN ── */
+        .dropdown-menu {
+            background-color: var(--bg-card)     !important;
+            border-color:     var(--border-color) !important;
+        }
+
+        .dropdown-item {
+            color:       var(--text-primary) !important;
+            font-family: 'Space Mono', monospace;
+            font-size:   0.8rem;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--table-stripe) !important;
+            color:            var(--accent-green)  !important;
+        }
+
+        /* ── MOBILE TOGGLER ── */
+        .navbar-toggler {
+            border-color: var(--border-hover);
+        }
+
+        .navbar-toggler-icon {
+            filter: invert(1);
+        }
+
+        /* ── FOOTER ── */
+        .rm-footer {
+            background-color: var(--footer-bg);
+            border-top:       1px solid var(--border-color) !important;
+            color:            var(--text-secondary);
+            font-family:      'Space Mono', monospace;
+            font-size:        0.75rem;
+            padding:          25px 0;
+            text-transform:   uppercase;
+            letter-spacing:   2px;
+            margin-top:       auto;
+        }
+
+        .rm-footer a {
+            color:       var(--accent-blue);
+            text-decoration: none;
+            transition:  color 0.2s;
+        }
+
+        .rm-footer a:hover {
+            color: var(--accent-green);
+        }
+
+        /* ── LAYOUT ── */
+        html, body     { height: 100%; }
+        .wrapper       { min-height: 100vh; display: flex; flex-direction: column; }
+        .main-content  { flex: 1; }
+
+        /* ── LIGHT MODE OVERRIDES ── */
+        [data-theme="light"] .rm-navbar-brand {
+            color: #ffffff !important;
+        }
+
+        [data-theme="light"] .navbar-toggler-icon {
+            filter: invert(1);
+        }
+
+        [data-theme="light"] .table-success {
+            background-color: rgba(0,170,68,0.15) !important;
+        }
+
+        [data-theme="light"] .table-danger {
+            background-color: rgba(204,0,0,0.1) !important;
+        }
+
+        [data-theme="light"] .table-warning {
+            background-color: rgba(255,179,0,0.15) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <nav class="navbar navbar-expand-sm
+                        navbar-toggleable-sm rm-navbar mb-3">
+                <div class="container-fluid">
+                    <a class="navbar-brand rm-navbar-brand"
+                       asp-area="" asp-controller="Home"
+                       asp-action="Index">
+                        ALTER<span>_PARTS</span>
+                    </a>
+
+                    <button class="navbar-toggler" type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target=".navbar-collapse"
+                            aria-controls="navbarSupportedContent"
+                            aria-expanded="false"
+                            aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="navbar-collapse collapse
+                                d-sm-inline-flex
+                                justify-content-between">
+                        <ul class="navbar-nav flex-grow-1">
+                            <li class="nav-item">
+                                <a class="nav-link rm-nav-link"
+                                   asp-area=""
+                                   asp-controller="Home"
+                                   asp-action="Index">
+                                    [ SYSTEM_HOME ]
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link rm-nav-link"
+                                   asp-controller="Component"
+                                   asp-action="More_Fruits">
+                                    [ DIRECTORY_MATRIX ]
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link rm-nav-link"
+                                   asp-controller="Verify"
+                                   asp-action="DescriptionSearch">
+                                    [ 🔍 QUERY_TERMINAL ]
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link rm-nav-link"
+                                   asp-area=""
+                                   asp-controller="Home"
+                                   asp-action="Privacy">
+                                    [ SECURITY_POLICY ]
+                                </a>
+                            </li>
+                        </ul>
+
+                        <!-- ✅ THEME TOGGLE BUTTON -->
+                        <div class="d-flex align-items-center ms-3">
+                            <button id="theme-toggle"
+                                    title="Toggle Theme">
+                                [ ☀️ LIGHT_MODE ]
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+
+        <div class="container-fluid main-content">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+
+        <footer class="rm-footer text-center">
+            <div class="container">
+                &copy; 2026 SYSTEM_LOG — ALTER_PARTS —
+                <a asp-area="" asp-controller="Home"
+                   asp-action="Privacy">
+                    PRIVACY_PROTOCOL
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js">
+    </script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- ✅ THEME TOGGLE SCRIPT -->
+    <script>
+        const html      = document.documentElement;
+        const toggleBtn = document.getElementById('theme-toggle');
+        const THEME_KEY = 'alter-parts-theme';
+
+        // Load saved theme — default is DARK
+        const savedTheme =
+            localStorage.getItem(THEME_KEY) || 'dark';
+        applyTheme(savedTheme);
+
+        // Toggle on click
+        toggleBtn.addEventListener('click', () => {
+            const current = html.getAttribute('data-theme');
+            const next    = current === 'dark' ? 'light' : 'dark';
+            applyTheme(next);
+            localStorage.setItem(THEME_KEY, next);
+        });
+
+        function applyTheme(theme) {
+            html.setAttribute('data-theme', theme);
+            if (theme === 'dark') {
+                toggleBtn.textContent = '[ ☀️ LIGHT_MODE ]';
+                toggleBtn.title       = 'Switch to Light Mode';
+            } else {
+                toggleBtn.textContent = '[ 🌙 DARK_MODE ]';
+                toggleBtn.title       = 'Switch to Dark Mode';
+            }
+        }
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html> *@

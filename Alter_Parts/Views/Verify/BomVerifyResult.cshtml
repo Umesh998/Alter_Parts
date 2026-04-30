@@ -1,0 +1,368 @@
+﻿@model Alter_Parts.Models.BomVerifyResult
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "BOM Verification Results";
+}
+
+<!-- Premium Font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+    /* ── AURORA GLASSMORPHISM THEME ── */
+    
+    /* 1. Animated Mesh Gradient Background */
+    @@keyframes auroraBg {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .aurora-theme-wrapper {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(-45deg, #0a0a1a, #1a1025, #0a192f, #000000);
+        background-size: 400% 400%;
+        animation: auroraBg 15s ease infinite;
+        color: #ffffff;
+        padding: 40px 0 80px 0;
+        min-height: 100vh;
+        position: relative;
+        z-index: 1;
+    }
+
+    .aurora-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* 2. Frosted Glass Panels */
+    .glass-panel {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    /* Headers */
+    .glass-header {
+        font-size: 2.5rem;
+        font-weight: 700;
+        letter-spacing: -1px;
+        background: linear-gradient(to right, #fff, #88aaff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 5px;
+    }
+    
+    .glass-filename {
+        font-family: 'JetBrains Mono', monospace;
+        color: #8892b0;
+        font-size: 0.85rem;
+        margin-bottom: 40px;
+    }
+
+    /* 3. Glowing Stat Cards */
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+
+    .stat-card {
+        padding: 24px;
+        text-align: center;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .stat-value {
+        font-size: 3.5rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 8px;
+    }
+    .stat-label {
+        color: #a8b2d1;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+    }
+
+    /* Specific Glows */
+    .glow-primary { color: #64ffda; text-shadow: 0 0 20px rgba(100, 255, 218, 0.4); }
+    .glow-success { color: #39FF14; text-shadow: 0 0 20px rgba(57, 255, 20, 0.4); }
+    .glow-danger { color: #FF073A; text-shadow: 0 0 20px rgba(255, 7, 58, 0.4); }
+    .glow-warning { color: #FFB000; text-shadow: 0 0 20px rgba(255, 176, 0, 0.4); }
+
+    /* 4. The Floating Data Table */
+    .table-wrapper {
+        padding: 1px; /* Creates a very thin border effect */
+        overflow: hidden;
+        margin-bottom: 40px;
+    }
+
+    .glass-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    .glass-table th {
+        color: #8892b0;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        padding: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .glass-table td {
+        padding: 20px;
+        font-size: 0.9rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        vertical-align: middle;
+    }
+
+    .glass-table tr:hover td {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* 5. Cascading Row Animation */
+    @@keyframes slideUpFade {
+        0% { opacity: 0; transform: translateY(20px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .animated-row {
+        opacity: 0;
+        animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* Typography & Badges */
+    .mono-text { font-family: 'JetBrains Mono', monospace; }
+    .part-title { font-weight: 600; font-size: 1rem; color: #e2e8f0; letter-spacing: 0.5px;}
+    
+    .neon-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        background: rgba(255, 255, 255, 0.05);
+    }
+    .badge-digikey { color: #0088FF; border: 1px solid rgba(0, 136, 255, 0.3); }
+    .badge-mouser { color: #64ffda; border: 1px solid rgba(100, 255, 218, 0.3); }
+    .badge-lcsc { color: #FF073A; border: 1px solid rgba(255, 7, 58, 0.3); }
+
+    /* Luminous Progress Bar */
+    .lum-progress-bg {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        margin-top: 10px;
+        overflow: hidden;
+    }
+    .lum-progress-fill {
+        height: 100%;
+        border-radius: 4px;
+        position: relative;
+    }
+    .lum-progress-fill::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        animation: shimmer 2s infinite;
+    }
+    @@keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+    /* Next-Gen Buttons */
+    .glass-btn {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: #fff;
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .glass-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-2px);
+        color: #fff;
+        text-decoration: none;
+    }
+    .glass-btn-primary {
+        background: rgba(100, 255, 218, 0.1);
+        color: #64ffda;
+        border-color: rgba(100, 255, 218, 0.3);
+    }
+    .glass-btn-primary:hover {
+        background: rgba(100, 255, 218, 0.2);
+        color: #64ffda;
+        box-shadow: 0 0 20px rgba(100, 255, 218, 0.2);
+    }
+</style>
+
+<div class="aurora-theme-wrapper">
+    <div class="aurora-container">
+        
+        <h1 class="glass-header">AI Verification Matrix</h1>
+        <div class="glass-filename">SOURCE_FILE // @Model.FileName</div>
+
+        <!-- Glowing Stats Dashboard -->
+        <div class="stat-grid">
+            <div class="glass-panel stat-card">
+                <div class="stat-value glow-primary">@Model.TotalRows</div>
+                <div class="stat-label">Nodes Processed</div>
+            </div>
+            <div class="glass-panel stat-card">
+                <div class="stat-value glow-success">@Model.MatchedCount</div>
+                <div class="stat-label">Verified Exact</div>
+            </div>
+            <div class="glass-panel stat-card">
+                <div class="stat-value glow-danger">@Model.NotMatchedCount</div>
+                <div class="stat-label">Anomalies Detected</div>
+            </div>
+            <div class="glass-panel stat-card">
+                <div class="stat-value glow-warning">@Model.ManualCheckCount</div>
+                <div class="stat-label">Manual Override</div>
+            </div>
+        </div>
+
+        <!-- Floating Glass Table -->
+        <div class="glass-panel table-wrapper">
+            <div style="overflow-x: auto;">
+                <table class="glass-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">ID</th>
+                            <th style="width: 25%;">Component Matrix</th>
+                            <th style="width: 20%;">Target Input</th>
+                            <th style="width: 20%;">System Resolution</th>
+                            <th style="width: 10%;">DigiKey</th>
+                            <th style="width: 10%;">Mouser</th>
+                            <th style="width: 10%;">LCSC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int delayCounter = 0; }
+                        @foreach (var row in Model.Rows)
+                        {
+                            <!-- 🚨 C# Logic calculates the animation delay so they cascade in -->
+                            <tr class="animated-row" style="animation-delay: @(delayCounter * 0.05)s;">
+                                <td class="mono-text" style="color: #64ffda;">@row.RowNumber.ToString("D3")</td>
+                                
+                                <td>
+                                    <div class="mono-text part-title">@row.PartNumber</div>
+                                    <div style="font-size: 0.75rem; color: #8892b0; margin-top: 4px; text-transform: uppercase;">
+                                        @(string.IsNullOrEmpty(row.Manufacturer) ? "UNKNOWN ORG" : row.Manufacturer)
+                                    </div>
+                                </td>
+                                
+                                <td style="color: #a8b2d1;">@row.UserDescription</td>
+                                
+                                <td>
+                                    @if (!string.IsNullOrEmpty(row.BestSource))
+                                    {
+                                        var sourceClass = row.BestSource == "DigiKey" ? "badge-digikey" :
+                                                          row.BestSource == "Mouser" ? "badge-mouser" :
+                                                          row.BestSource == "LCSC" ? "badge-lcsc" : "";
+                                        <div class="neon-badge @sourceClass mb-2">@row.BestSource</div>
+                                    }
+                                    
+                                    <div style="font-weight: 600; font-size: 0.9rem;">
+                                        @{
+                                            var verdictColor = row.MatchVerdict?.StartsWith("✅") == true ? "#39FF14" :
+                                                               row.MatchVerdict?.StartsWith("❌") == true ? "#FF073A" : "#FFB000";
+                                        }
+                                        <span style="color: @verdictColor;">@row.MatchVerdict?.Replace("✅", "")?.Replace("❌", "")?.Replace("⚠️", "")</span>
+                                    </div>
+                                    
+                                    @if (row.MatchScore > 0)
+                                    {
+                                        var barColor = row.MatchScore >= 80 ? "#39FF14" : row.MatchScore >= 50 ? "#FFB000" : "#FF073A";
+                                        <div class="lum-progress-bg">
+                                            <div class="lum-progress-fill" style="width:@(row.MatchScore)%; background: @barColor; box-shadow: 0 0 10px @barColor;"></div>
+                                        </div>
+                                    }
+                                </td>
+
+                                <!-- DigiKey -->
+                                <td>
+                                    @if (!string.IsNullOrEmpty(row.DigiKeyVerdict))
+                                    {
+                                        var vColor = row.DigiKeyVerdict.StartsWith("✅") ? "#39FF14" : row.DigiKeyVerdict.StartsWith("❌") ? "#FF073A" : "#FFB000";
+                                        <div style="color: @vColor; font-weight: 600; font-size: 0.85rem;">@row.DigiKeyVerdict.Replace("✅", "").Replace("❌", "").Replace("⚠️", "")</div>
+                                        @if (row.DigiKeyScore > 0) { <div class="mono-text" style="font-size: 0.7rem; color: #8892b0; margin-top: 4px;">SCORE: @row.DigiKeyScore</div> }
+                                    }
+                                </td>
+
+                                <!-- Mouser -->
+                                <td>
+                                    @if (!string.IsNullOrEmpty(row.MouserVerdict))
+                                    {
+                                        var vColor = row.MouserVerdict.StartsWith("✅") ? "#39FF14" : row.MouserVerdict.StartsWith("❌") ? "#FF073A" : "#FFB000";
+                                        <div style="color: @vColor; font-weight: 600; font-size: 0.85rem;">@row.MouserVerdict.Replace("✅", "").Replace("❌", "").Replace("⚠️", "")</div>
+                                        @if (row.MouserScore > 0) { <div class="mono-text" style="font-size: 0.7rem; color: #8892b0; margin-top: 4px;">SCORE: @row.MouserScore</div> }
+                                    }
+                                </td>
+
+                                <!-- LCSC -->
+                                <td>
+                                    @if (!string.IsNullOrEmpty(row.LCSCVerdict))
+                                    {
+                                        var vColor = row.LCSCVerdict.StartsWith("✅") ? "#39FF14" : row.LCSCVerdict.StartsWith("❌") ? "#FF073A" : "#FFB000";
+                                        <div style="color: @vColor; font-weight: 600; font-size: 0.85rem;">@row.LCSCVerdict.Replace("✅", "").Replace("❌", "").Replace("⚠️", "")</div>
+                                        @if (row.LCSCScore > 0) { <div class="mono-text" style="font-size: 0.7rem; color: #8892b0; margin-top: 4px;">SCORE: @row.LCSCScore</div> }
+                                    }
+                                </td>
+                            </tr>
+                            delayCounter++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Next-Gen Controls -->
+        <div style="display: flex; gap: 16px;">
+            <form asp-action="ExportVerifyResults" method="post" style="margin: 0;">
+                <input type="hidden" name="resultsJson" value="@JsonSerializer.Serialize(Model.Rows)" />
+                <button type="submit" class="glass-btn glass-btn-primary">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Export Payload
+                </button>
+            </form>
+            
+            <a asp-action="BomVerify" class="glass-btn">
+                Initialize New Matrix
+            </a>
+            
+            <a asp-controller="Component" asp-action="More_Fruits" class="glass-btn">
+                Return to Core
+            </a>
+        </div>
+
+    </div>
+</div>

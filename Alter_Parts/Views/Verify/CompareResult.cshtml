@@ -1,0 +1,169 @@
+﻿@model Alter_Parts.Models.CompareResult
+
+@{
+    ViewData["Title"] = "Comparison Result";
+
+    var verdictBg = Model.RecommendedPart switch
+    {
+        "Alternate" => "success",
+        "Original" => "warning",
+        "Either" => "info",
+        _ => "danger"
+    };
+}
+
+<div class="container mt-4">
+    <h3>⚖️ Comparison Result</h3>
+
+    <!-- Part Numbers -->
+    <div class="card mb-3 shadow-sm">
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <small class="text-muted">Original Part</small>
+                    <div><span class="badge bg-primary fs-6">@Model.OriginalPart</span></div>
+                    <small class="text-muted">Source: @Model.OriginalDetails?.Source</small>
+                </div>
+                <div class="col-md-4 d-flex align-items-center justify-content-center">
+                    <span class="fs-4">⚖️</span>
+                </div>
+                <div class="col-md-4">
+                    <small class="text-muted">Alternate Part</small>
+                    <div><span class="badge bg-success fs-6">@Model.AlternatePart</span></div>
+                    <small class="text-muted">Source: @Model.AlternateDetails?.Source</small>
+                </div>
+            </div>
+            <hr />
+            <div class="text-center">
+                <small class="text-muted">Your Description:</small>
+                <p class="fw-bold mb-0">@Model.UserDescription</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Final Verdict Banner -->
+    <div class="alert alert-@verdictBg text-center mb-4">
+        <h4 class="mb-1">@Model.Verdict</h4>
+        <p class="mb-0">@Model.VerdictReason</p>
+    </div>
+
+    <!-- Match Score Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card text-center border-primary
+                @(Model.OriginalMatchScore >= Model.AlternateMatchScore ? "border-3" : "")">
+                <div class="card-body">
+                    <h6 class="text-muted">Original Part Description Match</h6>
+                    <h2 class="text-primary">@Model.OriginalMatchScore%</h2>
+                    <small>@Model.OriginalDetails?.FetchedDescription</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-center border-success
+                @(Model.AlternateMatchScore >= Model.OriginalMatchScore ? "border-3" : "")">
+                <div class="card-body">
+                    <h6 class="text-muted">Alternate Part Description Match</h6>
+                    <h2 class="text-success">@Model.AlternateMatchScore%</h2>
+                    <small>@Model.AlternateDetails?.FetchedDescription</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spec Comparison Table -->
+    @if (Model.SpecComparisons.Any())
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">📋 Spec Comparison</h5>
+            </div>
+            <div class="card-body table-responsive">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Specification</th>
+                            <th class="text-center">
+                                Original
+                                <span class="badge bg-primary ms-1">@Model.OriginalPart</span>
+                            </th>
+                            <th class="text-center">
+                                Alternate
+                                <span class="badge bg-success ms-1">@Model.AlternatePart</span>
+                            </th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var spec in Model.SpecComparisons)
+                        {
+                            var rowClass = spec.Status switch
+                            {
+                                "Match" => "table-success",
+                                "Mismatch" => "table-danger",
+                                "Only Original" => "table-warning",
+                                _ => ""
+                            };
+
+                            var badge = spec.Status switch
+                            {
+                                "Match" => "<span class='badge bg-success'>✅ Match</span>",
+                                "Mismatch" => "<span class='badge bg-danger'>❌ Mismatch</span>",
+                                "Only Original" => "<span class='badge bg-warning text-dark'>Only Original</span>",
+                                _ => "<span class='badge bg-secondary'>Only Alternate</span>"
+                            };
+
+                            <tr class="@rowClass">
+                                <td>@spec.SpecName</td>
+                                <td class="text-center">@spec.OriginalValue</td>
+                                <td class="text-center">@spec.AlternateValue</td>
+                                <td class="text-center">@Html.Raw(badge)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    <!-- Datasheet Links -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h6>🔗 Original Part Links</h6>
+                @if (!string.IsNullOrEmpty(Model.OriginalDetails?.DatasheetUrl))
+                {
+                    <a href="@Model.OriginalDetails.DatasheetUrl" target="_blank"
+                       class="btn btn-sm btn-outline-secondary me-1">📄 Datasheet</a>
+                }
+                @if (!string.IsNullOrEmpty(Model.OriginalDetails?.ProductUrl))
+                {
+                    <a href="@Model.OriginalDetails.ProductUrl" target="_blank"
+                       class="btn btn-sm btn-outline-primary">🛒 @Model.OriginalDetails.Source</a>
+                }
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h6>🔗 Alternate Part Links</h6>
+                @if (!string.IsNullOrEmpty(Model.AlternateDetails?.DatasheetUrl))
+                {
+                    <a href="@Model.AlternateDetails.DatasheetUrl" target="_blank"
+                       class="btn btn-sm btn-outline-secondary me-1">📄 Datasheet</a>
+                }
+                @if (!string.IsNullOrEmpty(Model.AlternateDetails?.ProductUrl))
+                {
+                    <a href="@Model.AlternateDetails.ProductUrl" target="_blank"
+                       class="btn btn-sm btn-outline-success">🛒 @Model.AlternateDetails.Source</a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="mt-2">
+        <a asp-action="Compare" class="btn btn-primary">⚖️ Compare Another</a>
+        <a asp-action="Index" class="btn btn-secondary ms-2">🔍 Verify a Part</a>
+        <a asp-controller="Bom" asp-action="Upload" class="btn btn-secondary ms-2">📋 BOM Upload</a>
+    </div>
+</div>
