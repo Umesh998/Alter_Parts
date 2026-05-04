@@ -1,9 +1,14 @@
 using Alter_Parts.Data;
 using Alter_Parts.Services;
 using Microsoft.EntityFrameworkCore;
-using Vinrox_Tools.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+
+// This must be set before any Excel operations occur
+// Use the full path so C# knows exactly which 'LicenseType' we mean
+OfficeOpenXml.ExcelPackage.License.SetNonCommercialOrganization("Alter Parts");
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -14,6 +19,11 @@ builder.Services.AddHttpClient<DigiKeyService>();
 builder.Services.AddHttpClient<MouserService>();
 builder.Services.AddHttpClient<LCSCService>();
 builder.Services.AddScoped<PartLookupService>();
+builder.Services.AddMemoryCache(); // ← ADD THIS
+builder.Services.AddSession();     // ← ADD THIS if not already there
+
+builder.Services.AddScoped<ExcelExportService>();
+
 IConfiguration configuration = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json")
     .Build();

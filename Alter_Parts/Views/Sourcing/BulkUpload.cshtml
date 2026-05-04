@@ -1,0 +1,175 @@
+﻿@{
+    ViewData["Title"] = "Bulk Component Sourcing";
+    List<Alter_Parts.Models.BulkResultGroup> groups = ViewBag.Groups as List<Alter_Parts.Models.BulkResultGroup> ?? new();
+    bool hasResults = groups.Any();
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+
+<style>
+    .rm-theme-wrapper { background-color: #050505; color: #E0E0E0; font-family: 'Rajdhani', sans-serif; padding: 40px 0; min-height: 100vh; }
+    .rm-container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+    .rm-header { font-size: 2.2rem; font-weight: 700; text-transform: uppercase; letter-spacing: 3px; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 30px; color: #FFF; }
+    .rm-header span { color: #39FF14; }
+    .rm-upload-box { background-color: #0A0A0A; border: 1px solid #1A1A1A; border-top: 3px solid #39FF14; padding: 30px; margin-bottom: 30px; }
+    .rm-label { display: block; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; color: #555; margin-bottom: 10px; font-family: 'Space Mono', monospace; }
+    .rm-file-input { width: 100%; padding: 12px; background-color: #000; border: 1px solid #333; color: #FFF; font-family: 'Space Mono', monospace; font-size: 0.85rem; margin-bottom: 20px; cursor: pointer; }
+    .rm-hint { font-family: 'Space Mono', monospace; font-size: 0.75rem; color: #444; margin-top: -15px; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+    .rm-btn { background-color: transparent; padding: 12px 30px; font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: all 0.2s ease; border: 1px solid #444; color: #FFF; text-decoration: none; display: inline-block; }
+    .rm-btn-success { border-color: #39FF14; color: #39FF14; }
+    .rm-btn-success:hover { background-color: #39FF14; color: #000; text-decoration: none; }
+    .rm-btn-primary { border-color: #0088FF; color: #0088FF; }
+    .rm-btn-primary:hover { background-color: #0088FF; color: #000; text-decoration: none; }
+    .rm-btn:disabled { border-color: #333; color: #333; cursor: not-allowed; }
+    .rm-loading { display: none; font-family: 'Space Mono', monospace; font-size: 0.85rem; color: #39FF14; letter-spacing: 2px; text-transform: uppercase; margin-top: 15px; }
+    .rm-back { display: inline-block; margin-bottom: 25px; font-family: 'Space Mono', monospace; font-size: 0.8rem; color: #555; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; }
+    .rm-back:hover { color: #FFF; text-decoration: none; }
+    .rm-alert-error { background-color: rgba(255,7,58,0.05); border: 1px solid #FF073A; border-left: 4px solid #FF073A; color: #FF073A; padding: 15px 20px; font-family: 'Space Mono', monospace; font-size: 0.8rem; margin-bottom: 25px; }
+    .rm-alert-success { background-color: rgba(57,255,20,0.05); border: 1px solid #39FF14; border-left: 4px solid #39FF14; color: #39FF14; padding: 15px 20px; font-family: 'Space Mono', monospace; font-size: 0.8rem; margin-bottom: 25px; }
+    .rm-results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .rm-results-title { font-size: 1.4rem; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; color: #FFF; }
+    .rm-results-title span { color: #0088FF; }
+    .rm-table-wrapper { background-color: #0A0A0A; border: 1px solid #1A1A1A; overflow-x: auto; margin-bottom: 30px; }
+    .rm-table { width: 100%; border-collapse: collapse; }
+    .rm-table th { background-color: #000; color: #555; text-transform: uppercase; letter-spacing: 2px; padding: 12px 15px; font-size: 0.75rem; border-bottom: 1px solid #222; text-align: left; white-space: nowrap; }
+    .rm-table td { padding: 12px 15px; border-bottom: 1px solid #151515; vertical-align: middle; font-size: 0.9rem; }
+    .rm-table tr:hover td { background-color: #111; }
+    .rm-mono { font-family: 'Space Mono', monospace; font-size: 0.85rem; color: #FFF; }
+    .rm-desc-cell { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1rem; color: #FFF; border-right: 2px solid #222; }
+    .rm-source-mouser  { color: #FF9900; font-family: 'Space Mono', monospace; font-size: 0.8rem; font-weight: 700; }
+    .rm-source-digikey { color: #39FF14; font-family: 'Space Mono', monospace; font-size: 0.8rem; font-weight: 700; }
+    .rm-source-lcsc    { color: #0088FF; font-family: 'Space Mono', monospace; font-size: 0.8rem; font-weight: 700; }
+    .rm-group-separator td { border-bottom: 2px solid #333 !important; }
+    .rm-link { color: #0088FF; font-family: 'Space Mono', monospace; font-size: 0.8rem; text-decoration: underline; }
+    .rm-link:hover { color: #FFF; }
+    .rm-no-results { color: #444; font-family: 'Space Mono', monospace; font-size: 0.8rem; }
+</style>
+
+<div class="rm-theme-wrapper">
+    <div class="rm-container">
+
+        <a asp-controller="Home" asp-action="Index" class="rm-back">← BACK TO MATRIX</a>
+        <h2 class="rm-header">Bulk <span>Sourcing</span></h2>
+
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="rm-alert-error">
+                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    <div>[!] @error.ErrorMessage</div>
+                }
+            </div>
+        }
+
+        <!-- Upload Form -->
+        <div class="rm-upload-box">
+            <form method="post" enctype="multipart/form-data"
+                  asp-controller="Sourcing" asp-action="BulkUpload"
+                  id="sourcingForm">
+                <label class="rm-label">Upload Component List</label>
+                <input type="file" name="uploadedFile" accept=".xlsx"
+                       class="rm-file-input" required id="fileInput" />
+                <p class="rm-hint">// Column A — one component description per row — .xlsx only</p>
+                <button type="submit" class="rm-btn rm-btn-success" id="submitBtn">
+                    [📦] EXECUTE BULK SEARCH
+                </button>
+                <div class="rm-loading" id="loadingMsg">⟳ QUERYING DISTRIBUTORS... PLEASE WAIT</div>
+            </form>
+        </div>
+
+        @if (hasResults)
+        {
+            <!-- Summary + Download Button -->
+            <div class="rm-alert-success">
+                [+] SEARCH COMPLETE — @groups.Count COMPONENT(S) PROCESSED — @groups.Sum(g => g.Results.Count) RESULTS FOUND
+            </div>
+
+            <div class="rm-results-header">
+                <div class="rm-results-title">Results <span>Preview</span></div>
+               <a asp-controller="Sourcing" asp-action="DownloadReport" asp-route-key="@ViewBag.ResultKey" class="rm-btn rm-btn-primary">
+                    [⬇] DOWNLOAD EXCEL REPORT
+                </a>
+            </div>
+
+            <!-- Results Table -->
+            <div class="rm-table-wrapper">
+                <table class="rm-table">
+                    <thead>
+                        <tr>
+                            <th style="width:22%">Requested Description</th>
+                            <th style="width:10%">Distributor</th>
+                            <th style="width:15%">MPN</th>
+                            <th style="width:18%">Manufacturer</th>
+                            <th style="width:10%">Price</th>
+                            <th style="width:10%">Stock</th>
+                            <th style="width:15%">Link</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var group in groups)
+                        {
+                            int rowCount = Math.Max(group.Results.Count, 1);
+
+                            if (group.Results.Count == 0)
+                            {
+                                <tr class="rm-group-separator">
+                                    <td class="rm-desc-cell">@group.RequestedDescription</td>
+                                    <td colspan="6" class="rm-no-results">— NO RESULTS FOUND —</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                for (int i = 0; i < group.Results.Count; i++)
+                                {
+                                    var part = group.Results[i];
+                                    bool isLast = i == group.Results.Count - 1;
+
+                                    <tr class="@(isLast ? "rm-group-separator" : "")">
+                                        @if (i == 0)
+                                        {
+                                            <td class="rm-desc-cell" rowspan="@rowCount">
+                                                @group.RequestedDescription
+                                            </td>
+                                        }
+                                        <td>
+                                            <span class="rm-source-@(part.Source?.ToLower() ?? "unknown")">
+                                                @(part.Source?.ToUpper() ?? "UNKNOWN")
+                                            </span>
+                                        </td>
+                                        <td class="rm-mono">@part.Mpn</td>
+                                        <td>@part.Manufacturer</td>
+                                        <td class="rm-mono">
+                                            @(string.IsNullOrWhiteSpace(part.Price)
+                                                ? part.Specs.GetValueOrDefault("Unit Price", "N/A")
+                                                : part.Price)
+                                        </td>
+                                        <td class="rm-mono">@part.Stock</td>
+                                        <td>
+                                            @if (!string.IsNullOrWhiteSpace(part.ProductUrl))
+                                            {
+                                                <a href="@part.ProductUrl" target="_blank" class="rm-link">View →</a>
+                                            }
+                                            else
+                                            {
+                                                <span class="rm-no-results">—</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+    </div>
+</div>
+
+<script>
+    document.getElementById('sourcingForm').addEventListener('submit', function () {
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('submitBtn').innerText = 'PROCESSING...';
+        document.getElementById('loadingMsg').style.display = 'block';
+    });
+</script>

@@ -10,6 +10,8 @@
         public string Stock { get; set; }
         public string Category { get; set; }
         public string Source { get; set; } // "DigiKey", "Mouser", "Not Found"
+
+        public string Price { get; set; }
         public Dictionary<string, string> Specs { get; set; } = new();
     }
 }

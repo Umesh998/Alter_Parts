@@ -1,7 +1,6 @@
 ﻿using Alter_Parts.Models;
 using System.Text;
 using System.Text.Json;
-
 public class MouserService
 {
     private readonly HttpClient _httpClient;
