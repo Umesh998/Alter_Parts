@@ -1,4 +1,4 @@
-﻿@model Alter_Parts.Models.BomVerifyResult
+﻿@* @model Alter_Parts.Models.BomVerifyResult
 @using System.Text.Json
 
 @{
@@ -363,6 +363,1299 @@
                 Return to Core
             </a>
         </div>
+
+    </div>
+</div> *@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@* @model Alter_Parts.Models.BomVerifyResult
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "BOM Verification Results";
+}
+
+<!-- Premium Font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+    /* ── BOM VERIFY RESULTS PAGE STYLES ── */
+    /* All colors use CSS variables defined in _Layout.cshtml */
+
+    @@keyframes auroraBg {
+        0%   { background-position: 0% 50%; }
+        50%  { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .aurora-theme-wrapper {
+        font-family: 'Inter', sans-serif;
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        padding: 40px 0 80px 0;
+        min-height: 100vh;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Keep animated background only in dark mode */
+    [data-theme="dark"] .aurora-theme-wrapper {
+        background: linear-gradient(-45deg, #0a0a1a, #1a1025, #0a192f, #000000);
+        background-size: 400% 400%;
+        animation: auroraBg 15s ease infinite;
+        color: #ffffff;
+    }
+
+    .aurora-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* ── GLASS PANEL ── */
+    .glass-panel {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px 0 var(--navbar-shadow);
+    }
+
+    [data-theme="dark"] .glass-panel {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    /* ── HEADER ── */
+    .glass-header {
+        font-size: 2.5rem;
+        font-weight: 700;
+        letter-spacing: -1px;
+        margin-bottom: 5px;
+        color: var(--text-primary);
+    }
+
+    [data-theme="dark"] .glass-header {
+        background: linear-gradient(to right, #fff, #88aaff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .glass-filename {
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        margin-bottom: 40px;
+    }
+
+    /* ── STAT GRID ── */
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+    }
+
+    .stat-card {
+        padding: 24px;
+        text-align: center;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--text-muted);
+    }
+
+    .stat-value {
+        font-size: 3.5rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 8px;
+    }
+
+    .stat-label {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+    }
+
+    /* ── STAT GLOWS (kept always since they are accent colors) ── */
+    .glow-primary { color: #64ffda; }
+    .glow-success { color: var(--accent-green); }
+    .glow-danger  { color: #FF073A; }
+    .glow-warning { color: #FFB000; }
+
+    [data-theme="dark"] .glow-primary { text-shadow: 0 0 20px rgba(100, 255, 218, 0.4); }
+    [data-theme="dark"] .glow-success { text-shadow: 0 0 20px rgba(57, 255, 20, 0.4); }
+    [data-theme="dark"] .glow-danger  { text-shadow: 0 0 20px rgba(255, 7, 58, 0.4); }
+    [data-theme="dark"] .glow-warning { text-shadow: 0 0 20px rgba(255, 176, 0, 0.4); }
+
+    /* ── TABLE ── */
+    .table-wrapper {
+        overflow: hidden;
+        margin-bottom: 40px;
+    }
+
+    .glass-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        min-width: 800px;
+    }
+
+    .glass-table th {
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        padding: 20px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .glass-table td {
+        padding: 20px;
+        font-size: 0.9rem;
+        border-bottom: 1px solid var(--border-subtle);
+        vertical-align: middle;
+    }
+
+    .glass-table tr:hover td {
+        background: var(--bg-card);
+    }
+
+    /* ── ROW ANIMATION ── */
+    @@keyframes slideUpFade {
+        0%   { opacity: 0; transform: translateY(20px); }
+        100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .animated-row {
+        opacity: 0;
+        animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    /* ── TYPOGRAPHY ── */
+    .mono-text { font-family: 'JetBrains Mono', monospace; }
+
+    .part-title {
+        font-weight: 600;
+        font-size: 1rem;
+        color: var(--text-primary);
+        letter-spacing: 0.5px;
+    }
+
+    .row-number { color: #64ffda; }
+    .manufacturer-label { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; }
+    .user-desc { color: var(--text-muted); }
+    .score-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; }
+
+    /* ── BADGES ── */
+    .neon-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        background: var(--bg-card);
+    }
+
+    .badge-digikey { color: var(--accent-blue); border: 1px solid rgba(0, 136, 255, 0.3); }
+    .badge-mouser  { color: #64ffda; border: 1px solid rgba(100, 255, 218, 0.3); }
+    .badge-lcsc    { color: #FF073A; border: 1px solid rgba(255, 7, 58, 0.3); }
+
+    /* ── PROGRESS BAR ── */
+    .lum-progress-bg {
+        height: 4px;
+        background: var(--border-color);
+        border-radius: 4px;
+        margin-top: 10px;
+        overflow: hidden;
+    }
+
+    .lum-progress-fill {
+        height: 100%;
+        border-radius: 4px;
+        position: relative;
+    }
+
+    .lum-progress-fill::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+        animation: shimmer 2s infinite;
+    }
+
+    @@keyframes shimmer {
+        0%   { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+    }
+
+    /* ── BUTTONS ── */
+    .glass-btn {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .glass-btn:hover {
+        background: var(--bg-secondary);
+        border-color: var(--text-muted);
+        transform: translateY(-2px);
+        color: var(--text-primary);
+        text-decoration: none;
+    }
+
+    .glass-btn-primary {
+        background: rgba(100, 255, 218, 0.1);
+        color: #64ffda;
+        border-color: rgba(100, 255, 218, 0.3);
+    }
+
+    .glass-btn-primary:hover {
+        background: rgba(100, 255, 218, 0.2);
+        color: #64ffda;
+        box-shadow: 0 0 20px rgba(100, 255, 218, 0.2);
+    }
+
+    /* ── CONTROLS ROW ── */
+    .rm-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: center;
+    }
+
+    /* ── RESPONSIVE ── */
+    @@media (max-width: 768px) {
+        .aurora-theme-wrapper {
+            padding: 20px 0 40px 0;
+        }
+
+        .glass-header {
+            font-size: 1.6rem;
+            letter-spacing: -0.5px;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+        }
+
+        .stat-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .stat-card {
+            padding: 16px;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .aurora-container {
+            padding: 0 12px;
+        }
+
+        .glass-header {
+            font-size: 1.3rem;
+        }
+
+        .stat-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+        }
+
+        .glass-table th,
+        .glass-table td {
+            padding: 12px 10px;
+            font-size: 0.8rem;
+        }
+
+        .rm-controls {
+            flex-direction: column;
+        }
+
+        .glass-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="aurora-theme-wrapper">
+    <div class="aurora-container">
+
+        <h1 class="glass-header">AI Verification Matrix</h1>
+        <div class="glass-filename">SOURCE_FILE // @Model.FileName</div>
+
+        <!-- Stat Cards -->
+        <div class="stat-grid">
+            <div class="glass-panel stat-card">
+                <div class="stat-value glow-primary">@Model.TotalRows</div>
+                <div class="stat-label">Nodes Processed</div>
+            </div>
+            <div class="glass-panel stat-card">
+                <div class="stat-value glow-success">@Model.MatchedCount</div>
+                <div class="stat-label">Verified Exact</div>
+            </div>
+            <div class="glass-panel stat-card">
+                <div class="stat-value glow-danger">@Model.NotMatchedCount</div>
+                <div class="stat-label">Anomalies Detected</div>
+            </div>
+            <div class="glass-panel stat-card">
+                <div class="stat-value glow-warning">@Model.ManualCheckCount</div>
+                <div class="stat-label">Manual Override</div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="glass-panel table-wrapper">
+            <div style="overflow-x: auto;">
+                <table class="glass-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">ID</th>
+                            <th style="width: 25%;">Component Matrix</th>
+                            <th style="width: 20%;">Target Input</th>
+                            <th style="width: 20%;">System Resolution</th>
+                            <th style="width: 10%;">DigiKey</th>
+                            <th style="width: 10%;">Mouser</th>
+                            <th style="width: 10%;">LCSC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ int delayCounter = 0; }
+                        @foreach (var row in Model.Rows)
+                        {
+                            <tr class="animated-row" style="animation-delay: @(delayCounter * 0.05)s;">
+
+                                <td class="mono-text row-number">@row.RowNumber.ToString("D3")</td>
+
+                                <td>
+                                    <div class="mono-text part-title">@row.PartNumber</div>
+                                    <div class="manufacturer-label">
+                                        @(string.IsNullOrEmpty(row.Manufacturer) ? "UNKNOWN ORG" : row.Manufacturer)
+                                    </div>
+                                </td>
+
+                                <td class="user-desc">@row.UserDescription</td>
+
+                                <td>
+                                    @if (!string.IsNullOrEmpty(row.BestSource))
+                                    {
+                                        var sourceClass = row.BestSource == "DigiKey" ? "badge-digikey" :
+                                                          row.BestSource == "Mouser"  ? "badge-mouser"  :
+                                                          row.BestSource == "LCSC"    ? "badge-lcsc"    : "";
+                                        <div class="neon-badge @sourceClass mb-2">@row.BestSource</div>
+                                    }
+                                    <div style="font-weight: 600; font-size: 0.9rem;">
+                                        <span style="color: @(row.MatchVerdict?.StartsWith("✅") == true ? "var(--accent-green)" :
+                                                              row.MatchVerdict?.StartsWith("❌") == true ? "#FF073A" : "#FFB000");">
+                                            @row.MatchVerdict?.Replace("✅", "")?.Replace("❌", "")?.Replace("⚠️", "")
+                                        </span>
+                                    </div>
+                                    @if (row.MatchScore > 0)
+                                    {
+                                        var barColor = row.MatchScore >= 80 ? "var(--accent-green)" : row.MatchScore >= 50 ? "#FFB000" : "#FF073A";
+                                        <div class="lum-progress-bg">
+                                            <div class="lum-progress-fill" style="width:@(row.MatchScore)%; background: @barColor;"></div>
+                                        </div>
+                                    }
+                                </td>
+
+                                <!-- DigiKey -->
+                                <td>
+                                    @if (!string.IsNullOrEmpty(row.DigiKeyVerdict))
+                                    {
+                                        <div style="color: @(row.DigiKeyVerdict.StartsWith("✅") ? "var(--accent-green)" : row.DigiKeyVerdict.StartsWith("❌") ? "#FF073A" : "#FFB000"); font-weight: 600; font-size: 0.85rem;">
+                                            @row.DigiKeyVerdict.Replace("✅", "").Replace("❌", "").Replace("⚠️", "")
+                                        </div>
+                                        @if (row.DigiKeyScore > 0)
+                                        {
+                                            <div class="mono-text score-label">SCORE: @row.DigiKeyScore</div>
+                                        }
+                                    }
+                                </td>
+
+                                <!-- Mouser -->
+                                <td>
+                                    @if (!string.IsNullOrEmpty(row.MouserVerdict))
+                                    {
+                                        <div style="color: @(row.MouserVerdict.StartsWith("✅") ? "var(--accent-green)" : row.MouserVerdict.StartsWith("❌") ? "#FF073A" : "#FFB000"); font-weight: 600; font-size: 0.85rem;">
+                                            @row.MouserVerdict.Replace("✅", "").Replace("❌", "").Replace("⚠️", "")
+                                        </div>
+                                        @if (row.MouserScore > 0)
+                                        {
+                                            <div class="mono-text score-label">SCORE: @row.MouserScore</div>
+                                        }
+                                    }
+                                </td>
+
+                                <!-- LCSC -->
+                                <td>
+                                    @if (!string.IsNullOrEmpty(row.LCSCVerdict))
+                                    {
+                                        <div style="color: @(row.LCSCVerdict.StartsWith("✅") ? "var(--accent-green)" : row.LCSCVerdict.StartsWith("❌") ? "#FF073A" : "#FFB000"); font-weight: 600; font-size: 0.85rem;">
+                                            @row.LCSCVerdict.Replace("✅", "").Replace("❌", "").Replace("⚠️", "")
+                                        </div>
+                                        @if (row.LCSCScore > 0)
+                                        {
+                                            <div class="mono-text score-label">SCORE: @row.LCSCScore</div>
+                                        }
+                                    }
+                                </td>
+
+                            </tr>
+                            delayCounter++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="rm-controls">
+            <form asp-action="ExportVerifyResults" method="post" style="margin: 0;">
+                <input type="hidden" name="resultsJson" value="@JsonSerializer.Serialize(Model.Rows)" />
+                <button type="submit" class="glass-btn glass-btn-primary">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    Export Payload
+                </button>
+            </form>
+
+            <a asp-action="BomVerify" class="glass-btn">Initialize New Matrix</a>
+            <a asp-controller="Component" asp-action="More_Fruits" class="glass-btn">Return to Core</a>
+        </div>
+
+    </div>
+</div>
+
+ *@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@*  @model Alter_Parts.Models.BomVerifyResult
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "BOM Verification Results";
+}
+
+<!-- Import Technical Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+
+<style>
+    /* ── BOM VERIFY RESULTS PAGE STYLES ── */
+    /* All colors use CSS variables defined in _Layout.cshtml */
+
+    .rm-theme-wrapper {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: 'Rajdhani', sans-serif;
+        padding: 40px 0;
+        min-height: 100vh;
+    }
+
+    .rm-container {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* ── HEADER ── */
+    .rm-header {
+        font-size: 2.2rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 15px;
+        margin-bottom: 10px;
+        color: var(--text-primary);
+    }
+
+    .rm-header span {
+        color: var(--accent-blue);
+    }
+
+    .rm-filename {
+        font-family: 'Space Mono', monospace;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+        margin-bottom: 30px;
+    }
+
+    /* ── STAT BOXES ── */
+    .rm-stat-box {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        padding: 20px;
+        text-align: center;
+        border-top: 3px solid var(--border-color);
+        transition: border-color 0.3s ease;
+        height: 100%;
+    }
+
+    .rm-stat-box:hover { border-top-color: var(--text-muted); }
+    .rm-stat-box.border-primary { border-top-color: var(--accent-blue); }
+    .rm-stat-box.border-success { border-top-color: var(--accent-green); }
+    .rm-stat-box.border-danger  { border-top-color: #FF073A; }
+    .rm-stat-box.border-warning { border-top-color: #FF9900; }
+
+    .rm-stat-value {
+        font-family: 'Space Mono', monospace;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+
+    .rm-stat-label {
+        color: var(--footer-text);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    /* ── DATA TABLE ── */
+    .rm-table-wrapper {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        margin-bottom: 30px;
+        overflow-x: auto;
+    }
+
+    .rm-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+    }
+
+    .rm-table th {
+        background-color: var(--bg-card);
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        padding: 15px;
+        font-size: 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .rm-table td {
+        padding: 15px;
+        border-bottom: 1px solid var(--border-subtle);
+        vertical-align: middle;
+        font-size: 0.95rem;
+    }
+
+    .rm-table tr:hover td {
+        background-color: var(--bg-card);
+    }
+
+    /* ── TYPOGRAPHY ── */
+    .rm-mono { font-family: 'Space Mono', monospace; }
+    .rm-part-number { color: var(--text-primary); font-size: 1rem; letter-spacing: 1px; font-weight: bold; }
+    .rm-row-number { color: var(--footer-text); }
+    .rm-manufacturer { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; }
+    .rm-user-desc { color: var(--text-muted); font-size: 0.88rem; }
+    .rm-score-label { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; font-family: 'Space Mono', monospace; }
+
+    /* ── BADGES ── */
+    .rm-badge {
+        padding: 4px 10px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: inline-block;
+        font-family: 'Space Mono', monospace;
+        margin-bottom: 4px;
+        margin-right: 4px;
+    }
+
+    .rm-badge-primary { background-color: rgba(0, 136, 255, 0.1); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+    .rm-badge-mouser  { background-color: rgba(57, 255, 20, 0.1);  color: var(--accent-green); border: 1px solid var(--accent-green); }
+    .rm-badge-lcsc    { background-color: rgba(255, 7, 58, 0.1);   color: #FF073A; border: 1px solid #FF073A; }
+    .rm-badge-dark    { background-color: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border-color); }
+
+    /* ── PROGRESS BAR ── */
+    .rm-progress-bg {
+        height: 4px;
+        background: var(--border-color);
+        margin-top: 8px;
+        overflow: hidden;
+    }
+
+    .rm-progress-fill {
+        height: 100%;
+    }
+
+    /* ── CONTROL BUTTONS ── */
+    .rm-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 40px;
+    }
+
+    .rm-btn {
+        background-color: transparent;
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+        padding: 12px 24px;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .rm-btn:hover { background-color: var(--text-primary); color: var(--bg-primary); text-decoration: none; }
+    .rm-btn-success { border-color: var(--accent-green); color: var(--accent-green); }
+    .rm-btn-success:hover { background-color: var(--accent-green); color: #000; }
+    .rm-btn-primary { border-color: var(--accent-blue); color: var(--accent-blue); }
+    .rm-btn-primary:hover { background-color: var(--accent-blue); color: #000; }
+
+    /* ── RESPONSIVE ── */
+    @@media (max-width: 768px) {
+        .rm-theme-wrapper { padding: 20px 0; }
+        .rm-header { font-size: 1.5rem; letter-spacing: 1.5px; }
+        .rm-stat-value { font-size: 1.8rem; }
+        .rm-stat-label { font-size: 0.7rem; letter-spacing: 1px; }
+        .rm-btn { padding: 10px 16px; font-size: 0.8rem; letter-spacing: 1px; }
+    }
+
+    @@media (max-width: 576px) {
+        .rm-container { padding: 0 12px; }
+        .rm-header { font-size: 1.2rem; letter-spacing: 1px; }
+        .rm-stat-value { font-size: 1.5rem; }
+        .rm-table th, .rm-table td { padding: 10px 8px; font-size: 0.8rem; }
+        .rm-controls { flex-direction: column; }
+        .rm-btn { width: 100%; text-align: center; justify-content: center; }
+    }
+</style>
+
+<div class="rm-theme-wrapper">
+    <div class="rm-container">
+
+        <h2 class="rm-header">AI <span>Verification</span> Matrix</h2>
+        <div class="rm-filename">SOURCE_FILE // @Model.FileName</div>
+
+        <!-- Summary Dashboard -->
+        <div class="row mb-5">
+            <div class="col-6 col-md-3 mb-3 mb-md-0">
+                <div class="rm-stat-box border-primary">
+                    <div class="rm-stat-value" style="color: var(--accent-blue);">@Model.TotalRows</div>
+                    <div class="rm-stat-label">Nodes Processed</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 mb-3 mb-md-0">
+                <div class="rm-stat-box border-success">
+                    <div class="rm-stat-value" style="color: var(--accent-green);">@Model.MatchedCount</div>
+                    <div class="rm-stat-label">Verified Exact</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 mb-3 mb-md-0">
+                <div class="rm-stat-box border-danger">
+                    <div class="rm-stat-value" style="color: #FF073A;">@Model.NotMatchedCount</div>
+                    <div class="rm-stat-label">Anomalies Detected</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="rm-stat-box border-warning">
+                    <div class="rm-stat-value" style="color: #FF9900;">@Model.ManualCheckCount</div>
+                    <div class="rm-stat-label">Manual Override</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Grid -->
+        <div class="rm-table-wrapper">
+            <table class="rm-table">
+                <thead>
+                    <tr>
+                        <th style="width: 4%;">ID</th>
+                        <th style="width: 18%;">Component Matrix</th>
+                        <th style="width: 20%;">Target Input</th>
+                        <th style="width: 22%;">System Resolution</th>
+                        <th style="width: 12%;">DigiKey</th>
+                        <th style="width: 12%;">Mouser</th>
+                        <th style="width: 12%;">LCSC</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.Rows)
+                    {
+                        <tr>
+                            <td class="rm-mono rm-row-number">@row.RowNumber.ToString("D3")</td>
+
+                            <td>
+                                <div class="rm-mono rm-part-number">@row.PartNumber</div>
+                                <div class="rm-manufacturer">
+                                    @(string.IsNullOrEmpty(row.Manufacturer) ? "UNKNOWN ORG" : row.Manufacturer)
+                                </div>
+                            </td>
+
+                            <td class="rm-user-desc">@row.UserDescription</td>
+
+                            <td>
+                                @if (!string.IsNullOrEmpty(row.BestSource))
+                                {
+                                    var sourceClass = row.BestSource == "DigiKey" ? "rm-badge-primary" :
+                                                      row.BestSource == "Mouser"  ? "rm-badge-mouser"  :
+                                                      row.BestSource == "LCSC"    ? "rm-badge-lcsc"    : "rm-badge-dark";
+                                    <span class="rm-badge @sourceClass">@row.BestSource</span>
+                                }
+                                <div style="font-weight: 600; font-size: 0.9rem; margin-top: 4px;">
+                                    <span style="color: @(row.MatchVerdict?.StartsWith("✅") == true ? "var(--accent-green)" :
+                                                          row.MatchVerdict?.StartsWith("❌") == true ? "#FF073A" : "#FF9900");">
+                                        @row.MatchVerdict?.Replace("✅", "")?.Replace("❌", "")?.Replace("⚠️", "")
+                                    </span>
+                                </div>
+                                @if (row.MatchScore > 0)
+                                {
+                                    var barColor = row.MatchScore >= 80 ? "var(--accent-green)" : row.MatchScore >= 50 ? "#FF9900" : "#FF073A";
+                                    <div class="rm-progress-bg">
+                                        <div class="rm-progress-fill" style="width: @(row.MatchScore)%; background: @barColor;"></div>
+                                    </div>
+                                }
+                            </td>
+
+                            <!-- DigiKey -->
+                            <td>
+                                @if (!string.IsNullOrEmpty(row.DigiKeyVerdict))
+                                {
+                                    <div style="color: @(row.DigiKeyVerdict.StartsWith("✅") ? "var(--accent-green)" : row.DigiKeyVerdict.StartsWith("❌") ? "#FF073A" : "#FF9900"); font-weight: 600; font-size: 0.85rem;">
+                                        @row.DigiKeyVerdict.Replace("✅", "").Replace("❌", "").Replace("⚠️", "")
+                                    </div>
+                                    @if (row.DigiKeyScore > 0)
+                                    {
+                                        <div class="rm-score-label">SCORE: @row.DigiKeyScore</div>
+                                    }
+                                }
+                            </td>
+
+                            <!-- Mouser -->
+                            <td>
+                                @if (!string.IsNullOrEmpty(row.MouserVerdict))
+                                {
+                                    <div style="color: @(row.MouserVerdict.StartsWith("✅") ? "var(--accent-green)" : row.MouserVerdict.StartsWith("❌") ? "#FF073A" : "#FF9900"); font-weight: 600; font-size: 0.85rem;">
+                                        @row.MouserVerdict.Replace("✅", "").Replace("❌", "").Replace("⚠️", "")
+                                    </div>
+                                    @if (row.MouserScore > 0)
+                                    {
+                                        <div class="rm-score-label">SCORE: @row.MouserScore</div>
+                                    }
+                                }
+                            </td>
+
+                            <!-- LCSC -->
+                            <td>
+                                @if (!string.IsNullOrEmpty(row.LCSCVerdict))
+                                {
+                                    <div style="color: @(row.LCSCVerdict.StartsWith("✅") ? "var(--accent-green)" : row.LCSCVerdict.StartsWith("❌") ? "#FF073A" : "#FF9900"); font-weight: 600; font-size: 0.85rem;">
+                                        @row.LCSCVerdict.Replace("✅", "").Replace("❌", "").Replace("⚠️", "")
+                                    </div>
+                                    @if (row.LCSCScore > 0)
+                                    {
+                                        <div class="rm-score-label">SCORE: @row.LCSCScore</div>
+                                    }
+                                }
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Control Panel -->
+        <form asp-action="ExportVerifyResults" method="post" class="rm-controls">
+            <input type="hidden" name="resultsJson" value="@JsonSerializer.Serialize(Model.Rows)" />
+            <button type="submit" class="rm-btn rm-btn-success">[+] EXPORT PAYLOAD</button>
+            <a asp-action="BomVerify" class="rm-btn rm-btn-primary">[>] NEW MATRIX</a>
+            <a asp-controller="Component" asp-action="More_Fruits" class="rm-btn">[«] RETURN TO CORE</a>
+        </form>
+
+    </div>
+</div>
+
+ *@
+
+
+
+
+
+
+
+
+
+
+
+@model Alter_Parts.Models.BomVerifyResult
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "BOM Verification Results";
+}
+
+<!-- Import Technical Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+
+<style>
+    .rm-theme-wrapper {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: 'Rajdhani', sans-serif;
+        padding: 40px 0;
+        min-height: 100vh;
+    }
+
+    .rm-container {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .rm-header {
+        font-size: 2.2rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 15px;
+        margin-bottom: 10px;
+        color: var(--text-primary);
+    }
+    .rm-header span { color: var(--accent-blue); }
+
+    .rm-filename {
+        font-family: 'Space Mono', monospace;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+        margin-bottom: 30px;
+        word-break: break-all;
+    }
+
+    .rm-stat-box {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        padding: 20px;
+        text-align: center;
+        border-top: 3px solid var(--border-color);
+        transition: border-color 0.3s ease;
+        height: 100%;
+    }
+    .rm-stat-box:hover { border-top-color: var(--text-muted); }
+    .rm-stat-box.border-primary { border-top-color: var(--accent-blue); }
+    .rm-stat-box.border-success { border-top-color: var(--accent-green); }
+    .rm-stat-box.border-danger  { border-top-color: #FF073A; }
+    .rm-stat-box.border-warning { border-top-color: #FF9900; }
+
+    .rm-stat-value {
+        font-family: 'Space Mono', monospace;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+    .rm-stat-label {
+        color: var(--footer-text);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    /* Desktop table */
+    .rm-table-wrapper {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        margin-bottom: 30px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .rm-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;
+    }
+    .rm-table th {
+        background-color: var(--bg-card);
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        padding: 15px;
+        font-size: 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+        text-align: left;
+        white-space: nowrap;
+    }
+    .rm-table td {
+        padding: 15px;
+        border-bottom: 1px solid var(--border-subtle);
+        vertical-align: middle;
+        font-size: 0.95rem;
+    }
+    .rm-table tr:hover td { background-color: var(--bg-card); }
+
+    .rm-mono { font-family: 'Space Mono', monospace; }
+    .rm-part-number { color: var(--text-primary); font-size: 1rem; letter-spacing: 1px; font-weight: bold; }
+    .rm-row-number { color: var(--footer-text); }
+    .rm-manufacturer { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; }
+    .rm-user-desc { color: var(--text-muted); font-size: 0.88rem; }
+    .rm-score-label { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; font-family: 'Space Mono', monospace; }
+
+    .rm-badge {
+        padding: 4px 10px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: inline-block;
+        font-family: 'Space Mono', monospace;
+        margin-bottom: 4px;
+        margin-right: 4px;
+    }
+    .rm-badge-primary { background-color: rgba(0,136,255,0.1); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+    .rm-badge-mouser  { background-color: rgba(57,255,20,0.1);  color: var(--accent-green); border: 1px solid var(--accent-green); }
+    .rm-badge-lcsc    { background-color: rgba(255,7,58,0.1);   color: #FF073A; border: 1px solid #FF073A; }
+    .rm-badge-dark    { background-color: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border-color); }
+
+    .rm-progress-bg { height: 4px; background: var(--border-color); margin-top: 8px; overflow: hidden; }
+    .rm-progress-fill { height: 100%; }
+
+    /* Mobile cards — hidden on desktop */
+    .rm-mobile-cards { display: none; }
+
+    .rm-card {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-left: 3px solid var(--accent-blue);
+        margin-bottom: 12px;
+        padding: 14px;
+    }
+    .rm-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 6px;
+        gap: 8px;
+    }
+    .rm-card-part {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.85rem;
+        font-weight: bold;
+        color: var(--text-primary);
+        word-break: break-all;
+    }
+    .rm-card-id {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.75rem;
+        color: var(--footer-text);
+        white-space: nowrap;
+    }
+    .rm-card-manufacturer {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+    .rm-card-desc {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        margin-bottom: 10px;
+        border-top: 1px solid var(--border-subtle);
+        padding-top: 8px;
+    }
+    .rm-card-verdict {
+        font-weight: 600;
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+    }
+    .rm-card-sources {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-top: 8px;
+        border-top: 1px solid var(--border-subtle);
+        padding-top: 8px;
+    }
+    .rm-card-source-item {
+        font-size: 0.75rem;
+        font-family: 'Space Mono', monospace;
+        color: var(--text-muted);
+    }
+
+    /* Buttons */
+    .rm-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 40px;
+    }
+    .rm-btn {
+        background-color: transparent;
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+        padding: 12px 24px;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .rm-btn:hover { background-color: var(--text-primary); color: var(--bg-primary); text-decoration: none; }
+    .rm-btn-success { border-color: var(--accent-green); color: var(--accent-green); }
+    .rm-btn-success:hover { background-color: var(--accent-green); color: #000; }
+    .rm-btn-primary { border-color: var(--accent-blue); color: var(--accent-blue); }
+    .rm-btn-primary:hover { background-color: var(--accent-blue); color: #000; }
+
+    @@media (max-width: 768px) { {
+        .rm-theme-wrapper { padding: 20px 0; }
+        .rm-header { font-size: 1.5rem; letter-spacing: 1.5px; }
+        .rm-stat-value { font-size: 1.8rem; }
+        .rm-stat-label { font-size: 0.7rem; letter-spacing: 1px; }
+        .rm-btn { padding: 10px 16px; font-size: 0.8rem; letter-spacing: 1px; }
+    }
+
+    @@media (max-width: 768px) {) {
+        .rm-container { padding: 0 12px; }
+        .rm-header { font-size: 1.2rem; letter-spacing: 1px; }
+        .rm-stat-value { font-size: 1.5rem; }
+        .rm-stat-label { font-size: 0.65rem; letter-spacing: 0.5px; }
+        .rm-table-wrapper { display: none; }
+        .rm-mobile-cards { display: block; }
+        .rm-controls { flex-direction: column; }
+        .rm-btn { width: 100%; text-align: center; justify-content: center; }
+    }
+</style>
+
+<div class="rm-theme-wrapper">
+    <div class="rm-container">
+
+        <h2 class="rm-header">AI <span>Verification</span> Matrix</h2>
+        <div class="rm-filename">SOURCE_FILE // @Model.FileName</div>
+
+        <div class="row mb-4">
+            <div class="col-6 col-md-3 mb-3 mb-md-0">
+                <div class="rm-stat-box border-primary">
+                    <div class="rm-stat-value" style="color: var(--accent-blue);">@Model.TotalRows</div>
+                    <div class="rm-stat-label">Nodes Processed</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 mb-3 mb-md-0">
+                <div class="rm-stat-box border-success">
+                    <div class="rm-stat-value" style="color: var(--accent-green);">@Model.MatchedCount</div>
+                    <div class="rm-stat-label">Verified Exact</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 mb-3 mb-md-0">
+                <div class="rm-stat-box border-danger">
+                    <div class="rm-stat-value" style="color: #FF073A;">@Model.NotMatchedCount</div>
+                    <div class="rm-stat-label">Anomalies Detected</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="rm-stat-box border-warning">
+                    <div class="rm-stat-value" style="color: #FF9900;">@Model.ManualCheckCount</div>
+                    <div class="rm-stat-label">Manual Override</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Desktop Table -->
+        <div class="rm-table-wrapper">
+            <table class="rm-table">
+                <thead>
+                    <tr>
+                        <th style="width: 4%;">ID</th>
+                        <th style="width: 18%;">Component Matrix</th>
+                        <th style="width: 20%;">Target Input</th>
+                        <th style="width: 22%;">System Resolution</th>
+                        <th style="width: 12%;">DigiKey</th>
+                        <th style="width: 12%;">Mouser</th>
+                        <th style="width: 12%;">LCSC</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.Rows)
+                    {
+                        <tr>
+                            <td class="rm-mono rm-row-number">@row.RowNumber.ToString("D3")</td>
+                            <td>
+                                <div class="rm-mono rm-part-number">@row.PartNumber</div>
+                                <div class="rm-manufacturer">@(string.IsNullOrEmpty(row.Manufacturer) ? "UNKNOWN ORG" : row.Manufacturer)</div>
+                            </td>
+                            <td class="rm-user-desc">@row.UserDescription</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(row.BestSource))
+                                {
+                                    var sourceClass = row.BestSource == "DigiKey" ? "rm-badge-primary" :
+                                                      row.BestSource == "Mouser"  ? "rm-badge-mouser"  :
+                                                      row.BestSource == "LCSC"    ? "rm-badge-lcsc"    : "rm-badge-dark";
+                                    <span class="rm-badge @sourceClass">@row.BestSource</span>
+                                }
+                                <div style="font-weight:600;font-size:0.9rem;margin-top:4px;">
+                                    <span style="color:@(row.MatchVerdict?.StartsWith("✅")==true?"var(--accent-green)":row.MatchVerdict?.StartsWith("❌")==true?"#FF073A":"#FF9900");">
+                                        @row.MatchVerdict?.Replace("✅","")?.Replace("❌","")?.Replace("⚠️","")
+                                    </span>
+                                </div>
+                                @if (row.MatchScore > 0)
+                                {
+                                    var barColor = row.MatchScore >= 80 ? "var(--accent-green)" : row.MatchScore >= 50 ? "#FF9900" : "#FF073A";
+                                    <div class="rm-progress-bg"><div class="rm-progress-fill" style="width:@(row.MatchScore)%;background:@barColor;"></div></div>
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(row.DigiKeyVerdict))
+                                {
+                                    <div style="color:@(row.DigiKeyVerdict.StartsWith("✅")?"var(--accent-green)":row.DigiKeyVerdict.StartsWith("❌")?"#FF073A":"#FF9900");font-weight:600;font-size:0.85rem;">@row.DigiKeyVerdict.Replace("✅","").Replace("❌","").Replace("⚠️","")</div>
+                                    @if (row.DigiKeyScore > 0) { <div class="rm-score-label">SCORE: @row.DigiKeyScore</div> }
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(row.MouserVerdict))
+                                {
+                                    <div style="color:@(row.MouserVerdict.StartsWith("✅")?"var(--accent-green)":row.MouserVerdict.StartsWith("❌")?"#FF073A":"#FF9900");font-weight:600;font-size:0.85rem;">@row.MouserVerdict.Replace("✅","").Replace("❌","").Replace("⚠️","")</div>
+                                    @if (row.MouserScore > 0) { <div class="rm-score-label">SCORE: @row.MouserScore</div> }
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(row.LCSCVerdict))
+                                {
+                                    <div style="color:@(row.LCSCVerdict.StartsWith("✅")?"var(--accent-green)":row.LCSCVerdict.StartsWith("❌")?"#FF073A":"#FF9900");font-weight:600;font-size:0.85rem;">@row.LCSCVerdict.Replace("✅","").Replace("❌","").Replace("⚠️","")</div>
+                                    @if (row.LCSCScore > 0) { <div class="rm-score-label">SCORE: @row.LCSCScore</div> }
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile Cards -->
+        <div class="rm-mobile-cards">
+            @foreach (var row in Model.Rows)
+            {
+                <div class="rm-card">
+                    <div class="rm-card-header">
+                        <div>
+                            <div class="rm-card-part">@row.PartNumber</div>
+                            <div class="rm-card-manufacturer">@(string.IsNullOrEmpty(row.Manufacturer) ? "UNKNOWN ORG" : row.Manufacturer)</div>
+                        </div>
+                        <div class="rm-card-id">#@row.RowNumber.ToString("D3")</div>
+                    </div>
+                    <div class="rm-card-desc">@row.UserDescription</div>
+                    <div class="rm-card-verdict">
+                        @if (!string.IsNullOrEmpty(row.BestSource))
+                        {
+                            var sc = row.BestSource == "DigiKey" ? "rm-badge-primary" : row.BestSource == "Mouser" ? "rm-badge-mouser" : row.BestSource == "LCSC" ? "rm-badge-lcsc" : "rm-badge-dark";
+                            <span class="rm-badge @sc">@row.BestSource</span>
+                        }
+                        <span style="color:@(row.MatchVerdict?.StartsWith("✅")==true?"var(--accent-green)":row.MatchVerdict?.StartsWith("❌")==true?"#FF073A":"#FF9900");">
+                            @row.MatchVerdict?.Replace("✅","")?.Replace("❌","")?.Replace("⚠️","")
+                        </span>
+                    </div>
+                    @if (row.MatchScore > 0)
+                    {
+                        var bc = row.MatchScore >= 80 ? "var(--accent-green)" : row.MatchScore >= 50 ? "#FF9900" : "#FF073A";
+                        <div class="rm-progress-bg"><div class="rm-progress-fill" style="width:@(row.MatchScore)%;background:@bc;"></div></div>
+                    }
+                    <div class="rm-card-sources">
+                        @if (!string.IsNullOrEmpty(row.DigiKeyVerdict))
+                        {
+                            <div class="rm-card-source-item">DIGIKEY: <span style="color:@(row.DigiKeyVerdict.StartsWith("✅")?"var(--accent-green)":row.DigiKeyVerdict.StartsWith("❌")?"#FF073A":"#FF9900");">@row.DigiKeyVerdict.Replace("✅","").Replace("❌","").Replace("⚠️","")</span>@if(row.DigiKeyScore>0){<span style="color:var(--text-muted);"> (@row.DigiKeyScore)</span>}</div>
+                        }
+                        @if (!string.IsNullOrEmpty(row.MouserVerdict))
+                        {
+                            <div class="rm-card-source-item">MOUSER: <span style="color:@(row.MouserVerdict.StartsWith("✅")?"var(--accent-green)":row.MouserVerdict.StartsWith("❌")?"#FF073A":"#FF9900");">@row.MouserVerdict.Replace("✅","").Replace("❌","").Replace("⚠️","")</span>@if(row.MouserScore>0){<span style="color:var(--text-muted);"> (@row.MouserScore)</span>}</div>
+                        }
+                        @if (!string.IsNullOrEmpty(row.LCSCVerdict))
+                        {
+                            <div class="rm-card-source-item">LCSC: <span style="color:@(row.LCSCVerdict.StartsWith("✅")?"var(--accent-green)":row.LCSCVerdict.StartsWith("❌")?"#FF073A":"#FF9900");">@row.LCSCVerdict.Replace("✅","").Replace("❌","").Replace("⚠️","")</span>@if(row.LCSCScore>0){<span style="color:var(--text-muted);"> (@row.LCSCScore)</span>}</div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Control Panel -->
+        <form asp-action="ExportVerifyResults" method="post" class="rm-controls">
+            <input type="hidden" name="resultsJson" value="@JsonSerializer.Serialize(Model.Rows)" />
+            <button type="submit" class="rm-btn rm-btn-success">[+] EXPORT PAYLOAD</button>
+            <a asp-action="BomVerify" class="rm-btn rm-btn-primary">[>] NEW MATRIX</a>
+            <a asp-controller="Component" asp-action="More_Fruits" class="rm-btn">[«] RETURN TO CORE</a>
+        </form>
 
     </div>
 </div>

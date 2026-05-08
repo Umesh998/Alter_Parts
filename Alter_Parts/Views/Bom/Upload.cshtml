@@ -41,7 +41,7 @@
 
 
 
-
+@* 
 @{
     ViewData["Title"] = "BOM Upload";
 }
@@ -271,6 +271,342 @@
                 <button type="submit" class="rm-btn rm-btn-primary">
                     [ INITIALIZE COMPARISON SEQUENCE ]
                 </button>
+            </form>
+        </div>
+
+    </div>
+</div> *@
+
+
+
+
+
+
+
+
+
+
+
+@{
+    ViewData["Title"] = "BOM Upload";
+}
+
+<!-- Import Technical Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+
+<style>
+    /* ── BOM UPLOAD PAGE STYLES ── */
+    /* All colors use CSS variables defined in _Layout.cshtml */
+
+    .rm-theme-wrapper {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: 'Rajdhani', sans-serif;
+        padding: 40px 0;
+        min-height: 100vh;
+    }
+
+    .rm-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* ── HEADER ── */
+    .rm-header {
+        font-size: 2.2rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 15px;
+        margin-bottom: 10px;
+        color: var(--text-primary);
+    }
+
+        .rm-header span {
+            color: var(--accent-blue);
+        }
+
+    .rm-subtitle {
+        font-family: 'Space Mono', monospace;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        margin-bottom: 30px;
+    }
+
+    .rm-highlight {
+        color: var(--accent-green);
+        font-weight: bold;
+    }
+
+    /* ── PANEL ── */
+    .rm-panel {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-top: 3px solid var(--accent-blue);
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+
+    /* ── ERROR ALERT ── */
+    .rm-alert-danger {
+        background-color: rgba(255, 7, 58, 0.05);
+        border: 1px solid #FF073A;
+        border-left: 4px solid #FF073A;
+        color: #FF073A;
+        padding: 15px 20px;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.85rem;
+        margin-bottom: 25px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* ── INFO BLOCK ── */
+    .rm-info-block {
+        background-color: var(--bg-card);
+        border: 1px solid var(--border-color);
+        padding: 20px;
+        margin-top: 25px;
+        margin-bottom: 30px;
+    }
+
+    .rm-info-header {
+        color: var(--accent-blue);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 10px;
+    }
+
+    .rm-info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+        .rm-info-list li {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .rm-info-list .rm-divider {
+            margin-top: 15px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+
+    .rm-icon-success {
+        color: var(--accent-green);
+        margin-right: 10px;
+        font-size: 1.1rem;
+    }
+
+    .rm-icon-info {
+        color: var(--accent-blue);
+        margin-right: 10px;
+        font-size: 1.1rem;
+    }
+
+    /* ── TAGS ── */
+    .rm-tag {
+        font-family: 'Space Mono', monospace;
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 2px 8px;
+        font-size: 0.8rem;
+        margin-right: 6px;
+        white-space: nowrap;
+    }
+
+    .rm-tag-desc {
+        color: var(--text-muted);
+    }
+
+    /* ── FILE INPUT ── */
+    .rm-input-label {
+        display: block;
+        color: var(--text-muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+    }
+
+    .rm-file-input {
+        display: block;
+        width: 100%;
+        padding: 12px 15px;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        outline: none;
+        transition: border-color 0.3s;
+    }
+
+        .rm-file-input:focus,
+        .rm-file-input:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .rm-file-input::file-selector-button {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background-color: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            margin-right: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+            .rm-file-input::file-selector-button:hover {
+                background-color: var(--accent-blue);
+                border-color: var(--accent-blue);
+                color: #000;
+            }
+
+    /* ── SUBMIT BUTTON ── */
+    .rm-btn {
+        background-color: transparent;
+        color: var(--text-primary);
+        border: 1px solid var(--accent-blue);
+        padding: 14px 28px;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+    }
+
+    .rm-btn-primary {
+        color: var(--accent-blue);
+    }
+
+        .rm-btn-primary:hover {
+            background-color: var(--accent-blue);
+            color: #000;
+            text-decoration: none;
+        }
+
+    /* ── RESPONSIVE ── */
+    @@media (max-width: 768px) {
+        .rm-theme-wrapper {
+            padding: 20px 0;
+        }
+
+        .rm-header {
+            font-size: 1.5rem;
+            letter-spacing: 1.5px;
+        }
+
+        .rm-panel {
+            padding: 20px 15px;
+        }
+
+        .rm-btn {
+            padding: 12px 20px;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .rm-container {
+            padding: 0 12px;
+        }
+
+        .rm-header {
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+
+        .rm-info-list li {
+            font-size: 0.82rem;
+        }
+
+        .rm-file-input {
+            font-size: 0.8rem;
+        }
+    }
+</style>
+
+<div class="rm-theme-wrapper">
+    <div class="rm-container">
+
+        <h2 class="rm-header">BOM <span>Upload Matrix</span></h2>
+        <div class="rm-subtitle">
+            SYSTEM INSTRUCTION: Upload target file. Matrix will only process rows flagged as
+            <span class="rm-highlight">alternate</span> or <span class="rm-highlight">suggested</span>.
+        </div>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="rm-alert-danger">
+                [!] SYSTEM EXCEPTION: @ViewBag.Error
+            </div>
+        }
+
+        <div class="rm-panel">
+            <form asp-action="Upload" method="post" enctype="multipart/form-data">
+
+                <div style="margin-bottom: 25px;">
+                    <label class="rm-input-label">Select Target File (.xlsx / .xls)</label>
+                    <input type="file" name="bomFile" class="rm-file-input" accept=".xlsx,.xls" required />
+                </div>
+
+                <div class="rm-info-block">
+                    <div class="rm-info-header">Required Matrix Parameters</div>
+                    <ul class="rm-info-list">
+                        <li>
+                            <span class="rm-icon-success">■</span>
+                            <span class="rm-tag">Original Part</span>
+                            <span class="rm-tag-desc">Primary manufacturer component ID.</span>
+                        </li>
+                        <li>
+                            <span class="rm-icon-success">■</span>
+                            <span class="rm-tag">Alternate Part</span>
+                            <span class="rm-tag-desc">Proposed substitute component ID.</span>
+                        </li>
+                        <li>
+                            <span class="rm-icon-success">■</span>
+                            <span class="rm-tag">Remark</span>
+                            <span class="rm-tag-desc">Condition trigger (e.g., "Alt", "Substitute").</span>
+                        </li>
+                        <li class="rm-divider">
+                            <span class="rm-icon-info">□</span>
+                            <span class="rm-tag">Optional Specs</span>
+                            <span class="rm-tag-desc">Description, Manufacturer limits.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <button type="submit" class="rm-btn rm-btn-primary">
+                    [ INITIALIZE COMPARISON SEQUENCE ]
+                </button>
+
             </form>
         </div>
 

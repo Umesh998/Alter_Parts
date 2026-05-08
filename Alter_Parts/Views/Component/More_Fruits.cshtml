@@ -110,7 +110,7 @@
 
 
 
-@model Alter_Parts.Models.Part_View_Model
+@* @model Alter_Parts.Models.Part_View_Model
 
 @{
     ViewData["Title"] = "Inventory Matrix";
@@ -410,4 +410,474 @@
         }
 
     </div>
+</div> *@
+
+
+
+
+
+
+
+
+
+
+
+
+@model Alter_Parts.Models.Part_View_Model
+
+@{
+    ViewData["Title"] = "Inventory Matrix";
+}
+
+<!-- Import Technical Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+
+<style>
+    /* ── INVENTORY MATRIX PAGE STYLES ── */
+
+    .rm-theme-wrapper {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: 'Rajdhani', sans-serif;
+        padding: 40px 0;
+        min-height: 100vh;
+    }
+
+    .rm-container {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* ── HEADER ── */
+    .rm-header {
+        font-size: 2.2rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+        color: var(--text-primary);
+    }
+
+    .rm-header span {
+        color: var(--accent-blue);
+    }
+
+    /* ── SUCCESS ALERT ── */
+    .rm-alert-success {
+        background-color: rgba(57, 255, 20, 0.05);
+        border: 1px solid var(--accent-green);
+        border-left: 4px solid var(--accent-green);
+        color: var(--accent-green);
+        padding: 15px 20px;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.85rem;
+        margin-bottom: 25px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* ── SEARCH ── */
+    .rm-search-group {
+        display: flex;
+        margin-bottom: 20px;
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .rm-search-input {
+        flex: 1;
+        min-width: 0; /* Prevents flex overflow */
+        padding: 12px 15px;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.9rem;
+        color: var(--text-primary);
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-right: none;
+        outline: none;
+        transition: border-color 0.3s ease;
+    }
+
+    .rm-search-input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .rm-search-input:focus {
+        border-color: var(--accent-blue);
+    }
+
+    .rm-search-btn {
+        flex-shrink: 0;
+        background-color: var(--accent-blue);
+        color: #000;
+        border: 1px solid var(--accent-blue);
+        padding: 0 20px;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .rm-search-btn:hover {
+        background-color: var(--text-primary);
+        border-color: var(--text-primary);
+    }
+
+    /* ── COMMAND BAR ── */
+    .rm-command-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 30px;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        padding: 15px;
+        border-top: 3px solid var(--border-color);
+    }
+
+    /* ── DATA TABLE ── */
+    .rm-table-wrapper {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        margin-bottom: 30px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+    }
+
+    .rm-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 700px;
+    }
+
+    .rm-table th {
+        background-color: var(--bg-card);
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        padding: 15px;
+        font-size: 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .rm-table td {
+        padding: 15px;
+        border-bottom: 1px solid var(--border-subtle);
+        vertical-align: middle;
+        font-size: 0.95rem;
+    }
+
+    .rm-table tr:hover {
+        background-color: var(--bg-card);
+    }
+
+    /* ── TYPOGRAPHY ── */
+    .rm-mono {
+        font-family: 'Space Mono', monospace;
+        font-size: 1rem;
+        color: var(--text-primary);
+        letter-spacing: 1px;
+    }
+
+    .rm-alt-mono {
+        font-family: 'Space Mono', monospace;
+        font-size: 1rem;
+        color: var(--accent-blue);
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    /* ── BADGES ── */
+    .rm-badge {
+        padding: 6px 10px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: inline-block;
+        font-family: 'Space Mono', monospace;
+        white-space: nowrap;
+    }
+
+    .rm-badge-exact {
+        background-color: rgba(57, 255, 20, 0.1);
+        color: var(--accent-green);
+        border: 1px solid var(--accent-green);
+    }
+
+    .rm-badge-warn {
+        background-color: rgba(255, 153, 0, 0.1);
+        color: #FF9900;
+        border: 1px solid #FF9900;
+    }
+
+    .rm-awaiting {
+        color: var(--text-muted);
+        font-family: 'Space Mono', monospace;
+        font-size: 0.85rem;
+    }
+
+    /* ── ACTION BUTTONS ── */
+    .rm-btn {
+        background-color: transparent;
+        padding: 8px 14px;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        white-space: nowrap;
+    }
+
+    .rm-btn:hover {
+        background-color: var(--text-primary);
+        color: var(--bg-primary);
+        border-color: var(--text-primary);
+        text-decoration: none;
+    }
+
+    /* Command bar buttons - slightly larger */
+    .rm-command-bar .rm-btn {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+    }
+
+    .rm-btn-sm {
+        padding: 5px 10px;
+        font-size: 0.78rem;
+        letter-spacing: 0.5px;
+    }
+
+    .rm-btn-primary { border-color: var(--accent-blue); color: var(--accent-blue); }
+    .rm-btn-primary:hover { background-color: var(--accent-blue); color: #000; border-color: var(--accent-blue); }
+
+    .rm-btn-success { border-color: var(--accent-green); color: var(--accent-green); }
+    .rm-btn-success:hover { background-color: var(--accent-green); color: #000; border-color: var(--accent-green); }
+
+    .rm-btn-danger { border-color: #FF073A; color: #FF073A; }
+    .rm-btn-danger:hover { background-color: #FF073A; color: #000; border-color: #FF073A; }
+
+    /* ── EXECUTION CELL ── */
+    .rm-execution-group {
+        display: flex;
+        gap: 6px;
+        flex-wrap: nowrap;
+    }
+
+    /* ── PAGINATION ── */
+    .rm-pagination {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 20px;
+    }
+
+    .rm-page-btn {
+        display: inline-block;
+        padding: 8px 15px;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        color: var(--text-muted);
+        font-family: 'Space Mono', monospace;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .rm-page-btn:hover {
+        border-color: var(--accent-blue);
+        color: var(--accent-blue);
+        text-decoration: none;
+    }
+
+    /* ── RESPONSIVE: TABLET (768px) ── */
+    @@media (max-width: 768px) {
+        .rm-theme-wrapper { padding: 20px 0; }
+        .rm-header { font-size: 1.6rem; letter-spacing: 2px; }
+        .rm-search-group { max-width: 100%; }
+        .rm-command-bar { padding: 12px; gap: 8px; }
+        .rm-command-bar .rm-btn { font-size: 0.75rem; padding: 7px 10px; }
+    }
+
+    /* ── RESPONSIVE: MOBILE (576px) ── */
+    @@media (max-width: 576px) {
+        .rm-container { padding: 0 12px; }
+
+        .rm-header {
+            font-size: 1.3rem;
+            letter-spacing: 1px;
+        }
+
+        /* Search bar — make SCAN button compact */
+        .rm-search-input {
+            font-size: 0.78rem;
+            padding: 10px 10px;
+        }
+
+        .rm-search-btn {
+            padding: 0 14px;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* Command bar — 2 buttons per row */
+        .rm-command-bar {
+            padding: 10px;
+            gap: 6px;
+        }
+
+        .rm-command-bar .rm-btn {
+            font-size: 0.7rem;
+            padding: 6px 8px;
+            letter-spacing: 0.5px;
+            flex: 1 1 calc(50% - 6px); /* 2 per row */
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* Table */
+        .rm-table th,
+        .rm-table td {
+            padding: 10px 8px;
+            font-size: 0.8rem;
+        }
+
+        .rm-mono, .rm-alt-mono {
+            font-size: 0.82rem;
+            letter-spacing: 0.5px;
+        }
+
+        .rm-badge {
+            font-size: 0.68rem;
+            padding: 4px 6px;
+        }
+
+        /* Execution buttons */
+        .rm-execution-group {
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .rm-btn-sm {
+            font-size: 0.7rem;
+            padding: 4px 8px;
+        }
+    }
+</style>
+
+<div class="rm-theme-wrapper">
+    <div class="rm-container">
+
+        <h2 class="rm-header">Inventory <span>Matrix</span></h2>
+
+        @if (ViewBag.Notify != null)
+        {
+            <div class="rm-alert-success">
+                [+] SYSTEM NOTIFICATION: @ViewBag.Notify
+            </div>
+        }
+
+        <!-- Search Terminal -->
+        <form asp-action="More_Fruits" method="get" class="rm-search-group">
+            <input type="text" name="term" value="@Model.Term" class="rm-search-input" placeholder="INPUT SEARCH DESIGNATION..." autocomplete="off" />
+            <button type="submit" class="rm-search-btn">SCAN</button>
+        </form>
+
+        <!-- Command Panel -->
+        <div class="rm-command-bar">
+            <a asp-controller="Component" asp-action="Create" class="rm-btn rm-btn-primary">[+] CREATE ENTRY</a>
+            <a asp-controller="Bom" asp-action="Upload" class="rm-btn">[📋] UPLOAD BOM</a>
+            <a asp-controller="Verify" asp-action="Index" class="rm-btn rm-btn-primary">[🔍] VERIFY PART</a>
+            <a asp-controller="Verify" asp-action="Compare" class="rm-btn rm-btn-success">[⚖️] COMPARE PARTS</a>
+            <a asp-controller="Verify" asp-action="BomVerify" class="rm-btn">[📋] VERIFY BOM</a>
+            <a asp-controller="Verify" asp-action="DescriptionSearch" class="rm-btn">[🔍] SEARCH BY DESC</a>
+            <a asp-controller="Sourcing" asp-action="BulkUpload" class="rm-btn rm-btn-success">[📦] BULK SOURCING</a>
+        </div>
+
+        <!-- Master Data Grid -->
+        <div class="rm-table-wrapper">
+            <table class="rm-table">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">Original Node</th>
+                        <th style="width: 20%;">Alternate Node</th>
+                        <th style="width: 15%;">System Status</th>
+                        <th style="width: 25%;">Final Verdict</th>
+                        <th style="width: 20%;">Execution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Fruits)
+                    {
+                        <tr>
+                            <td><div class="rm-mono">@item.Original_Part_Number</div></td>
+                            <td><div class="rm-alt-mono">@item.Alter_Part_Number</div></td>
+                            <td>
+                                @if (item.Status == "Pending")
+                                {
+                                    <span class="rm-badge rm-badge-warn">PENDING</span>
+                                }
+                                else
+                                {
+                                    <span class="rm-badge rm-badge-exact">@item.Status.ToUpper()</span>
+                                }
+                            </td>
+                            <td>
+                                @if (string.IsNullOrEmpty(item.Final_Result) || item.Final_Result == "Pending")
+                                {
+                                    <span class="rm-awaiting">[AWAITING_DATA]</span>
+                                }
+                                else
+                                {
+                                    <span style="color: @(item.Final_Result.StartsWith("✅") ? "var(--accent-green)" :
+                                                          item.Final_Result.StartsWith("❌") ? "#FF073A" : "#FF9900");
+                                           font-weight: 600; font-size: 0.95rem;">
+                                        @item.Final_Result
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <div class="rm-execution-group">
+                                    <form asp-action="RunComparison" asp-route-id="@item.Part_Id" method="post" style="margin: 0;">
+                                        <button type="submit" class="rm-btn rm-btn-sm rm-btn-primary">COMPARE</button>
+                                    </form>
+                                    <a asp-action="Edit" asp-route-id="@item.Part_Id" class="rm-btn rm-btn-sm">EDIT</a>
+                                    <a asp-action="Delete" asp-route-id="@item.Part_Id" class="rm-btn rm-btn-sm rm-btn-danger">DEL</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        @if (Model.TotalPages > 1)
+        {
+            <div class="rm-pagination">
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <a asp-action="More_Fruits" asp-route-currentPage="@i" asp-route-term="@Model.Term" class="rm-page-btn">
+                        @i.ToString("D2")
+                    </a>
+                }
+            </div>
+        }
+
+    </div>
 </div>
+
