@@ -1,0 +1,139 @@
+﻿<!-- Views/Account/Login.cshtml -->
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Sign In";
+    Layout = null; // Full-page login, no nav bar
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EMS Portal — Sign In</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .login-card {
+            background: #1a1a2e;
+            border: 1px solid #334;
+            border-radius: 16px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .login-logo { color: #4fc3f7; font-size: 2rem; font-weight: 700; }
+        .form-control {
+            background: #16213e;
+            border: 1px solid #334;
+            color: #e0e0e0;
+        }
+        .form-control:focus {
+            background: #16213e;
+            border-color: #4fc3f7;
+            color: #e0e0e0;
+            box-shadow: 0 0 0 0.25rem rgba(79,195,247,0.15);
+        }
+        .btn-signin {
+            background: #0f3460;
+            border: 1px solid #4fc3f7;
+            color: #4fc3f7;
+            width: 100%;
+            padding: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .btn-signin:hover { background: #4fc3f7; color: #0f3460; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="d-flex justify-content-center">
+        <div class="login-card">
+
+            <div class="text-center mb-4">
+                <div class="login-logo">⚡ EMS Portal</div>
+                <p class="text-muted mt-1">Electronic Manufacturing Services</p>
+            </div>
+
+            <form asp-action="Login" method="post" id="loginForm">
+                <input type="hidden" asp-for="ReturnUrl" />
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label text-muted">Email Address</label>
+                    <input asp-for="Email" class="form-control" 
+                           placeholder="engineer@company.com" autocomplete="email" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label text-muted">Password</label>
+                    <input asp-for="Password" class="form-control" 
+                           placeholder="••••••••" autocomplete="current-password" />
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4 d-flex justify-content-between align-items-center">
+                    <div class="form-check">
+                        <input asp-for="RememberMe" class="form-check-input" type="checkbox" />
+                        <label asp-for="RememberMe" class="form-check-label text-muted">
+                            Remember Me
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-signin">Sign In</button>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // Show error from ModelState via TempData
+    @if (!ViewData.ModelState.IsValid)
+    {
+        var errors = ViewData.ModelState.Values
+            .SelectMany(v => v.Errors)
+            .Select(e => e.ErrorMessage)
+            .ToList();
+        var msg = Html.Raw(System.Text.Json.JsonSerializer.Serialize(errors.First()));
+        <text>
+        Swal.fire({
+            icon: 'error',
+            title: 'Sign In Failed',
+            text: @msg,
+            background: '#1a1a2e',
+            color: '#e0e0e0',
+            confirmButtonColor: '#0f3460',
+            confirmButtonText: 'Try Again'
+        });
+        </text>
+    }
+
+    // Show success message (after register redirect etc.)
+    @if (TempData["LoginSuccess"] != null)
+    {
+        <text>
+        Swal.fire({
+            icon: 'success',
+            title: 'Welcome Back!',
+            text: '@TempData["LoginSuccess"]',
+            background: '#1a1a2e',
+            color: '#e0e0e0',
+            timer: 2000,
+            showConfirmButton: false
+        });
+        </text>
+    }
+</script>
+</body>
+</html>

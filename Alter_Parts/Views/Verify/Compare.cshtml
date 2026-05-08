@@ -63,7 +63,7 @@
 
 
 
-@model Alter_Parts.Models.CompareRequest
+@* @model Alter_Parts.Models.CompareRequest
 
 @{
     ViewData["Title"] = "Compare Original vs Alternate";
@@ -206,6 +206,248 @@
         <div class="rm-panel">
             <form asp-action="Compare" method="post">
                 
+                <div style="margin-bottom: 30px;">
+                    <label asp-for="OriginalPart" class="rm-input-label">Primary Node ID</label>
+                    <input asp-for="OriginalPart" class="rm-text-input" placeholder="e.g. LM358N" autocomplete="off" />
+                    <span asp-validation-for="OriginalPart" class="rm-validation-text"></span>
+                </div>
+
+                <div style="margin-bottom: 30px;">
+                    <label asp-for="AlternatePart" class="rm-input-label">Alternate Node ID</label>
+                    <input asp-for="AlternatePart" class="rm-text-input" placeholder="e.g. LM358P" autocomplete="off" />
+                    <span asp-validation-for="AlternatePart" class="rm-validation-text"></span>
+                </div>
+
+                <div style="margin-bottom: 40px;">
+                    <label asp-for="Description" class="rm-input-label">Baseline Parameters</label>
+                    <textarea asp-for="Description" class="rm-text-input" rows="4" placeholder="e.g. Dual Op-Amp, 1MHz, 3-32V supply, DIP-8 package"></textarea>
+                    <span asp-validation-for="Description" class="rm-validation-text"></span>
+                </div>
+
+                <button type="submit" class="rm-btn rm-btn-primary">
+                    [ EXECUTE COMPARISON ALGORITHM ]
+                </button>
+
+            </form>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+} *@
+
+
+
+
+
+
+
+
+
+
+
+
+
+@model Alter_Parts.Models.CompareRequest
+
+@{
+    ViewData["Title"] = "Compare Original vs Alternate";
+}
+
+<!-- Import Technical Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+
+<style>
+    /* ── COMPARE PAGE STYLES ── */
+    /* All colors use CSS variables defined in _Layout.cshtml */
+
+    .rm-theme-wrapper {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: 'Rajdhani', sans-serif;
+        padding: 40px 0;
+        min-height: 100vh;
+    }
+
+    .rm-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* ── HEADER ── */
+    .rm-header {
+        font-size: 2.2rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 15px;
+        margin-bottom: 10px;
+        color: var(--text-primary);
+    }
+
+        .rm-header span {
+            color: var(--accent-green);
+        }
+
+    .rm-subtitle {
+        font-family: 'Space Mono', monospace;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+    }
+
+    /* ── PANEL ── */
+    .rm-panel {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-top: 3px solid var(--accent-green);
+        padding: 40px 35px;
+        margin-bottom: 30px;
+    }
+
+    /* ── FORM INPUTS ── */
+    .rm-input-label {
+        display: block;
+        color: var(--text-muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+    }
+
+    .rm-text-input {
+        display: block;
+        width: 100%;
+        padding: 14px 15px;
+        font-family: 'Space Mono', monospace;
+        font-size: 1rem;
+        color: var(--text-primary);
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+        .rm-text-input:focus {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.1);
+        }
+
+        .rm-text-input::placeholder {
+            color: var(--footer-text);
+        }
+
+    textarea.rm-text-input {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    /* ── VALIDATION ERRORS ── */
+    .rm-validation-text {
+        color: #FF073A;
+        font-size: 0.8rem;
+        font-family: 'Space Mono', monospace;
+        margin-top: 8px;
+        display: block;
+        text-transform: uppercase;
+    }
+
+    /* ── SUBMIT BUTTON ── */
+    .rm-btn {
+        background-color: transparent;
+        padding: 16px 28px;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 1.1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: block;
+        width: 100%;
+        text-align: center;
+        border: 1px solid transparent;
+    }
+
+    .rm-btn-primary {
+        color: var(--accent-green);
+        border-color: var(--accent-green);
+    }
+
+        .rm-btn-primary:hover {
+            background-color: var(--accent-green);
+            color: #000;
+        }
+
+    /* ── RESPONSIVE ── */
+    @@media (max-width: 768px) {
+        .rm-theme-wrapper {
+            padding: 20px 0;
+        }
+
+        .rm-header {
+            font-size: 1.5rem;
+            letter-spacing: 1.5px;
+        }
+
+        .rm-panel {
+            padding: 20px 15px;
+        }
+
+        .rm-text-input {
+            font-size: 0.9rem;
+            padding: 12px 12px;
+        }
+
+        .rm-btn {
+            font-size: 0.9rem;
+            padding: 14px 20px;
+            letter-spacing: 1px;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .rm-container {
+            padding: 0 12px;
+        }
+
+        .rm-header {
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+
+        .rm-subtitle {
+            font-size: 0.75rem;
+        }
+
+        .rm-input-label {
+            font-size: 0.78rem;
+            letter-spacing: 1px;
+        }
+    }
+</style>
+
+<div class="rm-theme-wrapper">
+    <div class="rm-container">
+
+        <h2 class="rm-header">Differential <span>Analysis</span></h2>
+        <div class="rm-subtitle">
+            System Instruction: Input primary and alternate node IDs to calculate specification deltas and substitution viability.
+        </div>
+
+        <div class="rm-panel">
+            <form asp-action="Compare" method="post">
+
                 <div style="margin-bottom: 30px;">
                     <label asp-for="OriginalPart" class="rm-input-label">Primary Node ID</label>
                     <input asp-for="OriginalPart" class="rm-text-input" placeholder="e.g. LM358N" autocomplete="off" />

@@ -134,7 +134,7 @@
 
 
 
-@model Alter_Parts.Models.BomUploadResult
+@* @model Alter_Parts.Models.BomUploadResult
 @using System.Text.Json
 
 @{
@@ -428,6 +428,419 @@
             <a asp-action="Upload" class="rm-btn rm-btn-primary">
                 [>] UPLOAD NEW BOM
             </a>
+        </form>
+
+    </div>
+</div> *@
+
+
+
+
+
+
+
+
+
+
+@model Alter_Parts.Models.BomUploadResult
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "BOM Comparison Results";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+
+<style>
+    .rm-theme-wrapper {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: 'Rajdhani', sans-serif;
+        padding: 40px 0;
+        min-height: 100vh;
+    }
+
+    .rm-container {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* ── HEADER ── */
+    .rm-header {
+        font-size: 2.2rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 15px;
+        margin-bottom: 10px;
+        color: var(--text-primary);
+    }
+    .rm-header span { color: #FF073A; }
+
+    .rm-filename {
+        font-family: 'Space Mono', monospace;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+        margin-bottom: 30px;
+        word-break: break-all;
+    }
+
+    /* ── STAT BOXES ── */
+    .rm-stat-box {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        padding: 20px;
+        text-align: center;
+        border-top: 3px solid var(--border-color);
+        transition: border-color 0.3s ease;
+        height: 100%;
+    }
+    .rm-stat-box:hover { border-top-color: var(--text-muted); }
+    .rm-stat-box.border-primary { border-top-color: var(--accent-blue); }
+    .rm-stat-box.border-success { border-top-color: var(--accent-green); }
+    .rm-stat-box.border-danger  { border-top-color: #FF073A; }
+    .rm-stat-box.border-warning { border-top-color: #FF9900; }
+
+    .rm-stat-value {
+        font-family: 'Space Mono', monospace;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
+    .rm-stat-label {
+        color: var(--footer-text);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    /* ── DESKTOP TABLE ── */
+    .rm-table-wrapper {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        margin-bottom: 30px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .rm-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 800px;
+    }
+    .rm-table th {
+        background-color: var(--bg-card);
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        padding: 15px;
+        font-size: 0.75rem;
+        border-bottom: 1px solid var(--border-color);
+        text-align: left;
+        white-space: nowrap;
+    }
+    .rm-table td {
+        padding: 15px;
+        border-bottom: 1px solid var(--border-subtle);
+        vertical-align: middle;
+        font-size: 0.95rem;
+    }
+    .rm-table tr:hover { background-color: var(--bg-card); }
+
+    /* ── TYPOGRAPHY ── */
+    .rm-mono { font-family: 'Space Mono', monospace; }
+    .rm-part-number { color: var(--text-primary); font-size: 1.05rem; letter-spacing: 1px; font-weight: bold; }
+    .rm-alt-part { color: var(--accent-blue); font-weight: bold; letter-spacing: 1px; }
+    .rm-desc { color: var(--text-muted); font-size: 0.85rem; }
+    .rm-row-number { color: var(--footer-text); }
+
+    /* ── BADGES ── */
+    .rm-badge {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: inline-block;
+        font-family: 'Space Mono', monospace;
+        margin-bottom: 4px;
+        margin-right: 4px;
+    }
+    .rm-badge-primary { background-color: rgba(0,136,255,0.1); color: var(--accent-blue); border: 1px solid var(--accent-blue); }
+    .rm-badge-exact   { background-color: rgba(57,255,20,0.1); color: var(--accent-green); border: 1px solid var(--accent-green); }
+    .rm-badge-warn    { background-color: rgba(255,153,0,0.1); color: #FF9900; border: 1px solid #FF9900; }
+    .rm-badge-fail    { background-color: rgba(255,7,58,0.1); color: #FF073A; border: 1px solid #FF073A; }
+    .rm-badge-dark    { background-color: var(--bg-card); color: var(--text-muted); border: 1px solid var(--border-color); }
+
+    /* ── MOBILE CARDS ── */
+    .rm-mobile-cards { display: none; }
+
+    .rm-card {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-left: 3px solid #FF073A;
+        margin-bottom: 12px;
+        padding: 14px;
+    }
+    .rm-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 8px;
+        gap: 8px;
+    }
+    .rm-card-original {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.82rem;
+        font-weight: bold;
+        color: var(--text-primary);
+        word-break: break-all;
+    }
+    .rm-card-id {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.72rem;
+        color: var(--footer-text);
+        white-space: nowrap;
+    }
+    .rm-card-alternate {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.82rem;
+        color: var(--accent-blue);
+        font-weight: bold;
+        margin-bottom: 8px;
+        word-break: break-all;
+    }
+    .rm-card-remark {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+        border-top: 1px solid var(--border-subtle);
+        padding-top: 8px;
+    }
+    .rm-card-result {
+        font-weight: 600;
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+    }
+    .rm-card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid var(--border-subtle);
+        padding-top: 8px;
+        margin-top: 6px;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    /* ── CONTROL BUTTONS ── */
+    .rm-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 40px;
+    }
+    .rm-btn {
+        background-color: transparent;
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+        padding: 12px 24px;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: inline-block;
+    }
+    .rm-btn:hover { background-color: var(--text-primary); color: var(--bg-primary); text-decoration: none; }
+    .rm-btn-success { border-color: var(--accent-green); color: var(--accent-green); }
+    .rm-btn-success:hover { background-color: var(--accent-green); color: #000; }
+    .rm-btn-primary { border-color: var(--accent-blue); color: var(--accent-blue); }
+    .rm-btn-primary:hover { background-color: var(--accent-blue); color: #000; }
+
+    /* ── RESPONSIVE: TABLET ── */
+    @@media (max-width: 768px) {
+        .rm-theme-wrapper { padding: 20px 0; }
+        .rm-header { font-size: 1.5rem; letter-spacing: 1.5px; }
+        .rm-stat-value { font-size: 1.8rem; }
+        .rm-stat-label { font-size: 0.7rem; letter-spacing: 1px; }
+        .rm-btn { padding: 10px 16px; font-size: 0.8rem; letter-spacing: 1px; }
+    }
+
+    /* ── RESPONSIVE: MOBILE ── */
+    @@media (max-width: 576px) {
+        .rm-container { padding: 0 12px; }
+        .rm-header { font-size: 1.2rem; letter-spacing: 1px; }
+        .rm-stat-value { font-size: 1.5rem; }
+        .rm-stat-label { font-size: 0.65rem; letter-spacing: 0.5px; }
+
+        /* Hide table, show cards */
+        .rm-table-wrapper { display: none; }
+        .rm-mobile-cards { display: block; }
+
+        .rm-controls { flex-direction: column; }
+        .rm-btn { width: 100%; text-align: center; }
+    }
+</style>
+
+<div class="rm-theme-wrapper">
+    <div class="rm-container">
+
+        <h2 class="rm-header">BOM <span>Comparison</span> Results</h2>
+        <div class="rm-filename">TARGET_FILE: @Model.FileName</div>
+
+        <!-- Summary Dashboard -->
+        <div class="row mb-5">
+            <div class="col-6 col-md-3 mb-3 mb-md-0">
+                <div class="rm-stat-box border-primary">
+                    <div class="rm-stat-value" style="color: var(--accent-blue);">@Model.ProcessedRows</div>
+                    <div class="rm-stat-label">Parts Compared</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 mb-3 mb-md-0">
+                <div class="rm-stat-box border-success">
+                    <div class="rm-stat-value" style="color: var(--accent-green);">@Model.CompatibleCount</div>
+                    <div class="rm-stat-label">Compatible</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 mb-3 mb-md-0">
+                <div class="rm-stat-box border-danger">
+                    <div class="rm-stat-value" style="color: #FF073A;">@Model.IncompatibleCount</div>
+                    <div class="rm-stat-label">Not Compatible</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="rm-stat-box border-warning">
+                    <div class="rm-stat-value" style="color: #FF9900;">@Model.ManualCheckCount</div>
+                    <div class="rm-stat-label">Check Manually</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── DESKTOP TABLE ── -->
+        <div class="rm-table-wrapper">
+            <table class="rm-table">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">Row</th>
+                        <th style="width: 15%;">Original Part</th>
+                        <th style="width: 15%;">Alternate Part</th>
+                        <th style="width: 15%;">Remark</th>
+                        <th style="width: 15%;">Data Source</th>
+                        <th style="width: 25%;">Comparison Result</th>
+                        <th style="width: 10%;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.Rows)
+                    {
+                        <tr>
+                            <td class="rm-mono rm-row-number">@row.RowNumber.ToString("D3")</td>
+                            <td><div class="rm-mono rm-part-number">@row.OriginalPart</div></td>
+                            <td><div class="rm-mono rm-alt-part">@row.AlternatePart</div></td>
+                            <td><div class="rm-desc">@row.Remark</div></td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(row.Source))
+                                {
+                                    foreach (var src in row.Source.Split('/'))
+                                    {
+                                        var badgeClass = src.Trim() switch
+                                        {
+                                            "DigiKey"   => "rm-badge-primary",
+                                            "Mouser"    => "rm-badge-exact",
+                                            "Not Found" => "rm-badge-dark",
+                                            _           => "rm-badge-dark"
+                                        };
+                                        <span class="rm-badge @badgeClass">@src.Trim().ToUpper()</span>
+                                    }
+                                }
+                                else { <span class="rm-badge rm-badge-dark">UNKNOWN</span> }
+                            </td>
+                            <td>
+                                <div style="font-weight: 600;">
+                                    <span style="color: @(row.ComparisonResult?.StartsWith("✅") == true ? "var(--accent-green)" :
+                                                          row.ComparisonResult?.StartsWith("❌") == true ? "#FF073A" : "#FF9900");">
+                                        @row.ComparisonResult
+                                    </span>
+                                </div>
+                            </td>
+                            <td>
+                                @if (row.Status == "Done")
+                                { <span class="rm-badge rm-badge-exact">DONE</span> }
+                                else if (row.Status == "Error")
+                                { <span class="rm-badge rm-badge-fail">ERROR</span> }
+                                else
+                                { <span class="rm-badge rm-badge-warn">PENDING</span> }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ── MOBILE CARDS ── -->
+        <div class="rm-mobile-cards">
+            @foreach (var row in Model.Rows)
+            {
+                <div class="rm-card">
+                    <div class="rm-card-header">
+                        <div>
+                            <div class="rm-card-original">@row.OriginalPart</div>
+                            <div class="rm-card-alternate">→ @row.AlternatePart</div>
+                        </div>
+                        <div class="rm-card-id">#@row.RowNumber.ToString("D3")</div>
+                    </div>
+
+                    <div class="rm-card-remark">@row.Remark</div>
+
+                    <div class="rm-card-result">
+                        <span style="color: @(row.ComparisonResult?.StartsWith("✅") == true ? "var(--accent-green)" :
+                                              row.ComparisonResult?.StartsWith("❌") == true ? "#FF073A" : "#FF9900");">
+                            @row.ComparisonResult
+                        </span>
+                    </div>
+
+                    <div class="rm-card-footer">
+                        <div>
+                            @if (!string.IsNullOrEmpty(row.Source))
+                            {
+                                foreach (var src in row.Source.Split('/'))
+                                {
+                                    var badgeClass = src.Trim() switch
+                                    {
+                                        "DigiKey"   => "rm-badge-primary",
+                                        "Mouser"    => "rm-badge-exact",
+                                        "Not Found" => "rm-badge-dark",
+                                        _           => "rm-badge-dark"
+                                    };
+                                    <span class="rm-badge @badgeClass">@src.Trim().ToUpper()</span>
+                                }
+                            }
+                        </div>
+                        <div>
+                            @if (row.Status == "Done")
+                            { <span class="rm-badge rm-badge-exact">DONE</span> }
+                            else if (row.Status == "Error")
+                            { <span class="rm-badge rm-badge-fail">ERROR</span> }
+                            else
+                            { <span class="rm-badge rm-badge-warn">PENDING</span> }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Control Panel -->
+        <form asp-action="ExportResults" method="post" class="rm-controls">
+            <input type="hidden" name="resultsJson" value="@JsonSerializer.Serialize(Model.Rows)" />
+            <button type="submit" class="rm-btn rm-btn-success">[+] EXPORT RESULTS</button>
+            <a asp-action="Upload" class="rm-btn rm-btn-primary">[>] UPLOAD NEW BOM</a>
         </form>
 
     </div>

@@ -1,4 +1,9 @@
-﻿@model Alter_Parts.Models.PartDetails
+﻿@* 
+Main code for this file *@
+
+
+
+@* @model Alter_Parts.Models.PartDetails
 
 @{
     var scoreStr = Model.Specs
@@ -155,7 +160,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> *@
 
 
 
@@ -462,3 +467,376 @@
         </div>
     </div>
 </div> *@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@model Alter_Parts.Models.PartDetails
+
+@{
+    var scoreStr = Model.Specs
+        .GetValueOrDefault("Match Score", "0")
+        .Replace("%", "");
+    double.TryParse(scoreStr, out var matchScore);
+
+    var matchHex = matchScore >= 80 ? "var(--accent-green)" :
+                   matchScore >= 50 ? "#FF9900" : "#FF073A";
+
+    var matchBorderHex = matchScore >= 80 ? "var(--accent-green)" :
+                         matchScore >= 50 ? "#FF9900" : "#FF073A";
+
+    var stockNum = long.TryParse(Model.Stock, out var s) ? s : 0;
+    var stockHex = stockNum > 1000 ? "var(--accent-green)" :
+                   stockNum > 0 ? "#FF9900" : "#FF073A";
+
+    var unitPrice = Model.Specs.GetValueOrDefault("Unit Price", "N/A");
+
+    var sourceHex = Model.Source == "DigiKey" ? "var(--accent-blue)" :
+                    Model.Source == "Mouser" ? "var(--accent-green)" :
+                    Model.Source == "LCSC" ? "#FF073A" : "var(--text-muted)";
+
+    var sourcePN = Model.Source == "DigiKey"
+        ? Model.Specs.GetValueOrDefault("DigiKey PN", "")
+        : Model.Specs.GetValueOrDefault("Mouser PN", "");
+
+    var displaySpecs = Model.Specs
+        .Where(s => s.Key != "Unit Price" &&
+                    s.Key != "Match Score" &&
+                    s.Key != "DigiKey PN" &&
+                    s.Key != "Mouser PN")
+        .Take(4).ToList();
+
+    bool hasPkg = Model.Specs.TryGetValue("Package / Case", out var pkg) ||
+                  Model.Specs.TryGetValue("Case/Package", out pkg);
+}
+
+<div class="col-lg-6 mb-4">
+    <div class="rm-part-card" style="border-top: 3px solid @matchBorderHex;">
+
+        <!-- ── CARD HEADER ── -->
+        <div class="rm-card-header">
+            <div class="rm-card-badges">
+                <span class="rm-source-badge" style="color: @sourceHex; border-color: @sourceHex;">
+                    @Model.Source.ToUpper()
+                </span>
+                <span class="rm-mpn-badge">@Model.Mpn</span>
+                @if (!string.IsNullOrEmpty(sourcePN))
+                {
+                    <span class="rm-pn-badge">@sourcePN</span>
+                }
+            </div>
+            <span class="rm-match-badge" style="color: @matchHex; border-color: @matchBorderHex;">
+                @matchScore% MATCH
+            </span>
+        </div>
+
+        <!-- ── CARD BODY ── -->
+        <div class="rm-card-body">
+
+            <div class="rm-card-description">@Model.Description</div>
+
+            <div class="rm-card-grid">
+                @if (!string.IsNullOrEmpty(Model.Manufacturer))
+                {
+                    <div class="rm-card-field">
+                        <span class="rm-field-label">Manufacturer</span>
+                        <span class="rm-field-value">@Model.Manufacturer</span>
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(Model.Category))
+                {
+                    <div class="rm-card-field">
+                        <span class="rm-field-label">Category</span>
+                        <span class="rm-field-value">@Model.Category</span>
+                    </div>
+                }
+                <div class="rm-card-field">
+                    <span class="rm-field-label">Unit Price</span>
+                    <span class="rm-field-value" style="color: var(--accent-green);">@unitPrice</span>
+                </div>
+                <div class="rm-card-field">
+                    <span class="rm-field-label">Stock</span>
+                    <span class="rm-field-value" style="color: @stockHex;">
+                        @(stockNum > 0 ? $"{stockNum:N0} UNITS" : Model.Stock.ToUpper())
+                    </span>
+                </div>
+                @if (hasPkg)
+                {
+                    <div class="rm-card-field">
+                        <span class="rm-field-label">Package</span>
+                        <span class="rm-field-value">@pkg</span>
+                    </div>
+                }
+            </div>
+
+            <!-- Match Progress Bar -->
+            <div class="rm-progress-bg">
+                <div class="rm-progress-fill" style="width: @matchScore%; background: @matchHex;"></div>
+            </div>
+
+            <!-- Spec Tags -->
+            @if (displaySpecs.Any())
+            {
+                <div class="rm-spec-tags">
+                    @foreach (var spec in displaySpecs)
+                    {
+                        <span class="rm-spec-tag">@spec.Key: <strong>@spec.Value</strong></span>
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- ── CARD FOOTER ── -->
+        <div class="rm-card-footer">
+            @if (!string.IsNullOrEmpty(Model.ProductUrl))
+            {
+                <a href="@Model.ProductUrl" target="_blank"
+                       class="rm-card-btn"
+                       style="border-color: @sourceHex; color: @sourceHex;">
+                    [🛒] @Model.Source
+                </a>
+            }
+            @if (!string.IsNullOrEmpty(Model.DatasheetUrl))
+            {
+                <a href="@Model.DatasheetUrl" target="_blank" class="rm-card-btn">
+                    [📄] DATASHEET
+                </a>
+            }
+            @if (!string.IsNullOrEmpty(Model.Mpn))
+            {
+                <a asp-controller="Verify"
+                       asp-action="Index"
+                       asp-route-partNumber="@Model.Mpn"
+                       class="rm-card-btn">
+                    [🔍] VERIFY
+                </a>
+            }
+        </div>
+
+    </div>
+</div>
+
+<style>
+    /* ── PART RESULT CARD STYLES ── */
+
+    .rm-part-card {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        padding: 18px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: border-color 0.3s ease, transform 0.2s ease;
+    }
+
+        .rm-part-card:hover {
+            border-color: var(--text-muted);
+            transform: translateY(-2px);
+        }
+
+    /* ── HEADER ── */
+    .rm-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        border-bottom: 1px solid var(--border-subtle);
+        padding-bottom: 12px;
+        margin-bottom: 14px;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .rm-card-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        align-items: center;
+    }
+
+    .rm-source-badge {
+        background-color: transparent;
+        border: 1px solid;
+        padding: 3px 8px;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.72rem;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .rm-mpn-badge {
+        background-color: var(--bg-card);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+        padding: 3px 8px;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.72rem;
+        font-weight: bold;
+        word-break: break-all;
+    }
+
+    .rm-pn-badge {
+        background-color: var(--bg-primary);
+        color: var(--text-muted);
+        border: 1px solid var(--border-subtle);
+        padding: 3px 8px;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.68rem;
+    }
+
+    .rm-match-badge {
+        background-color: transparent;
+        border: 1px solid;
+        padding: 3px 8px;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.72rem;
+        font-weight: bold;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    /* ── BODY ── */
+    .rm-card-body {
+        flex-grow: 1;
+    }
+
+    .rm-card-description {
+        font-family: 'Space Mono', monospace;
+        font-size: 0.85rem;
+        font-weight: bold;
+        color: var(--text-primary);
+        margin-bottom: 14px;
+        line-height: 1.5;
+    }
+
+    .rm-card-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+
+    .rm-card-field {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .rm-field-label {
+        color: var(--footer-text);
+        font-size: 0.68rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+
+    .rm-field-value {
+        color: var(--text-primary);
+        font-family: 'Space Mono', monospace;
+        font-size: 0.82rem;
+        font-weight: 600;
+        word-break: break-word;
+    }
+
+    /* ── PROGRESS BAR ── */
+    .rm-progress-bg {
+        height: 4px;
+        background: var(--border-color);
+        margin-bottom: 12px;
+        overflow: hidden;
+    }
+
+    .rm-progress-fill {
+        height: 100%;
+        transition: width 0.5s ease;
+    }
+
+    /* ── SPEC TAGS ── */
+    .rm-spec-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 8px;
+    }
+
+    .rm-spec-tag {
+        background-color: var(--bg-card);
+        color: var(--text-muted);
+        border: 1px solid var(--border-subtle);
+        padding: 3px 7px;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.68rem;
+        text-transform: uppercase;
+    }
+
+        .rm-spec-tag strong {
+            color: var(--text-primary);
+        }
+
+    /* ── FOOTER ── */
+    .rm-card-footer {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border-subtle);
+    }
+
+    .rm-card-btn {
+        background-color: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-muted);
+        padding: 6px 12px;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        display: inline-block;
+    }
+
+        .rm-card-btn:hover {
+            background-color: var(--text-primary);
+            color: var(--bg-primary);
+            border-color: var(--text-primary);
+            text-decoration: none;
+        }
+
+    /* ── RESPONSIVE ── */
+    @@media (max-width: 576px) {
+        .rm-part-card {
+            padding: 12px;
+        }
+
+        .rm-card-description {
+            font-size: 0.78rem;
+        }
+
+        .rm-card-grid {
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .rm-card-footer {
+            gap: 6px;
+        }
+
+        .rm-card-btn {
+            font-size: 0.75rem;
+            padding: 5px 10px;
+        }
+    }
+</style>
