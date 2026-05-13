@@ -2,11 +2,18 @@
 using Alter_Parts.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Alter_Parts.Controllers
 {
+    [Authorize]
     public class ComponentController : Controller
     {
+        public IActionResult More_Fruits()
+        {
+            return View();
+        }
+
         private readonly PartLookupService _lookupService;
         private readonly Data.DB _ctx;
 

@@ -34,7 +34,7 @@
 
 
 
-@model Alter_Parts.Models.Alter
+@* @model Alter_Parts.Models.Alter
 
 @{
     ViewData["Title"] = "Create New Entry";
@@ -226,6 +226,288 @@
                         [<] RETURN TO LIST
                     </a>
                 </div>
+            </form>
+        </div>
+
+    </div>
+</div> *@
+
+
+
+
+
+
+
+
+
+
+
+
+
+@model Alter_Parts.Models.Alter
+
+@{
+    ViewData["Title"] = "Create New Entry";
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+
+<style>
+    /* ── CREATE ENTRY PAGE STYLES ── */
+    /* All colors use CSS variables defined in _Layout.cshtml */
+
+    .rm-theme-wrapper {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: 'Rajdhani', sans-serif;
+        padding: 40px 0;
+        min-height: 100vh;
+    }
+
+    .rm-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* ── HEADER ── */
+    .rm-header {
+        font-size: 2.2rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 15px;
+        margin-bottom: 10px;
+        color: var(--text-primary);
+    }
+    .rm-header span { color: var(--accent-blue); }
+
+    .rm-subtitle {
+        font-family: 'Space Mono', monospace;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+        line-height: 1.6;
+    }
+
+    /* ── PANEL ── */
+    .rm-panel {
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-top: 3px solid var(--accent-blue);
+        padding: 35px 30px;
+        margin-bottom: 30px;
+    }
+
+    /* ── FORM INPUTS ── */
+    .rm-input-label {
+        display: block;
+        color: var(--text-muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+    }
+
+    .rm-text-input {
+        display: block;
+        width: 100%;
+        padding: 14px 15px;
+        font-family: 'Space Mono', monospace;
+        font-size: 1rem;
+        color: var(--text-primary);
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-color);
+        outline: none;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    .rm-text-input:focus {
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 10px rgba(0, 136, 255, 0.1);
+    }
+
+    .rm-text-input::placeholder {
+        color: var(--footer-text);
+    }
+
+    /* ── VALIDATION ── */
+    .rm-validation-text {
+        color: #FF073A;
+        font-size: 0.8rem;
+        font-family: 'Space Mono', monospace;
+        margin-top: 8px;
+        display: block;
+        text-transform: uppercase;
+    }
+
+    .rm-alert-danger {
+        background-color: rgba(255, 7, 58, 0.05);
+        border: 1px solid #FF073A;
+        border-left: 4px solid #FF073A;
+        color: #FF073A;
+        padding: 15px 20px;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.85rem;
+        margin-bottom: 25px;
+        text-transform: uppercase;
+        word-break: break-word;
+    }
+    .rm-alert-danger ul { margin: 0; padding-left: 20px; }
+
+    /* ── BUTTONS ── */
+    .rm-btn-group {
+        display: flex;
+        gap: 15px;
+        margin-top: 40px;
+        flex-wrap: wrap;
+    }
+
+    .rm-btn {
+        background-color: transparent;
+        padding: 14px 28px;
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        text-align: center;
+        flex: 1;
+        border: 1px solid transparent;
+        box-sizing: border-box;
+    }
+
+    .rm-btn-primary {
+        color: var(--accent-blue);
+        border-color: var(--accent-blue);
+    }
+    .rm-btn-primary:hover {
+        background-color: var(--accent-blue);
+        color: #000;
+        text-decoration: none;
+    }
+
+    .rm-btn-secondary {
+        color: var(--text-muted);
+        border-color: var(--border-color);
+    }
+    .rm-btn-secondary:hover {
+        background-color: var(--text-primary);
+        color: var(--bg-primary);
+        border-color: var(--text-primary);
+        text-decoration: none;
+    }
+
+    /* ── RESPONSIVE: TABLET ── */
+    @@media (max-width: 768px) {
+        .rm-theme-wrapper { padding: 20px 0; }
+
+        .rm-header {
+            font-size: 1.5rem;
+            letter-spacing: 1.5px;
+        }
+
+        .rm-panel {
+            padding: 24px 20px;
+        }
+
+        .rm-btn {
+            font-size: 0.9rem;
+            padding: 12px 20px;
+            letter-spacing: 1.5px;
+        }
+    }
+
+    /* ── RESPONSIVE: MOBILE ── */
+    @@media (max-width: 576px) {
+        .rm-container { padding: 0 12px; }
+
+        .rm-header {
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+
+        .rm-subtitle {
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        .rm-panel {
+            padding: 16px 12px;
+        }
+
+        .rm-text-input {
+            font-size: 0.85rem;
+            padding: 12px 12px;
+        }
+
+        .rm-input-label {
+            font-size: 0.78rem;
+            letter-spacing: 1px;
+        }
+
+        /* Buttons stack vertically on mobile */
+        .rm-btn-group {
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .rm-btn {
+            font-size: 0.85rem;
+            padding: 13px 16px;
+            letter-spacing: 1px;
+            flex: none;
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="rm-theme-wrapper">
+    <div class="rm-container">
+
+        <h2 class="rm-header">Create <span>Entry</span></h2>
+        <div class="rm-subtitle">
+            System Instruction: Register new component pairing into the master directory.
+        </div>
+
+        <div class="rm-panel">
+            <form asp-action="Create" method="post">
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="rm-alert-danger"></div>
+                }
+
+                <div style="margin-bottom: 30px;">
+                    <label class="rm-input-label">Original Part Number</label>
+                    <input asp-for="Original_Part_Number" class="rm-text-input" placeholder="e.g., STM32F103C8T6" autocomplete="off" />
+                    <span asp-validation-for="Original_Part_Number" class="rm-validation-text"></span>
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <label class="rm-input-label">Alternate Part Number</label>
+                    <input asp-for="Alter_Part_Number" class="rm-text-input" placeholder="e.g., GD32F103C8T6" autocomplete="off" />
+                    <span asp-validation-for="Alter_Part_Number" class="rm-validation-text"></span>
+                </div>
+
+                <div class="rm-btn-group">
+                    <button type="submit" class="rm-btn rm-btn-primary">
+                        [+] SAVE RECORD
+                    </button>
+                    <a asp-action="More_Fruits" class="rm-btn rm-btn-secondary">
+                        [&lt;] RETURN TO LIST
+                    </a>
+                </div>
+
             </form>
         </div>
 

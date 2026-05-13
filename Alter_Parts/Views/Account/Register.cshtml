@@ -1,0 +1,87 @@
+﻿@model Alter_Parts.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Create Account";
+    Layout = "~/Views/Account/_AccountLayout.cshtml";
+}
+
+<div class="ap-page">
+    <div class="ap-card">
+        <div class="ap-card-header">
+           @*  <div class="eyebrow">// auth.register</div> *@
+            <h1>Create Account</h1>
+        </div>
+
+        <div class="ap-card-body">
+
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ContainsKey(string.Empty))
+            {
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach (var error in ViewData.ModelState[string.Empty]!.Errors)
+                        {
+                            <li>@error.ErrorMessage</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <form method="post" action="/Account/Register">
+                @Html.AntiForgeryToken()
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label" asp-for="FirstName">First Name</label>
+                        <input class="form-control" asp-for="FirstName"
+                               placeholder="Jane" autocomplete="given-name" autofocus />
+                        <span class="field-validation-error" asp-validation-for="FirstName"></span>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label" asp-for="LastName">Last Name</label>
+                        <input class="form-control" asp-for="LastName"
+                               placeholder="Smith" autocomplete="family-name" />
+                        <span class="field-validation-error" asp-validation-for="LastName"></span>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top:1.25rem">
+                    <label class="form-label" asp-for="Email">Email Address</label>
+                    <input class="form-control" asp-for="Email" type="email"
+                           placeholder="you@company.com" autocomplete="email" />
+                    <span class="field-validation-error" asp-validation-for="Email"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="Password">Password</label>
+                    <input class="form-control" asp-for="Password" type="password"
+                           placeholder="Min 12 chars, upper, lower, digit, symbol" autocomplete="new-password" />
+                    <span class="field-validation-error" asp-validation-for="Password"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="ConfirmPassword">Confirm Password</label>
+                    <input class="form-control" asp-for="ConfirmPassword" type="password"
+                           placeholder="••••••••••••" autocomplete="new-password" />
+                    <span class="field-validation-error" asp-validation-for="ConfirmPassword"></span>
+                </div>
+
+                <div style="background:rgba(30,139,205,.06);border:1px solid rgba(30,139,205,.15);padding:.75rem 1rem;margin-bottom:1.25rem;font-size:.8rem;color:var(--text-muted);font-family:var(--mono);line-height:1.6">
+                    PWD POLICY: 12+ chars &nbsp;·&nbsp; uppercase &nbsp;·&nbsp; lowercase &nbsp;·&nbsp; digit &nbsp;·&nbsp; symbol &nbsp;·&nbsp; 4 unique chars
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></svg>
+                    Create Account
+                </button>
+            </form>
+        </div>
+
+        <div class="card-footer-link">
+            Already registered? <a href="/Account/Login">Sign in</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

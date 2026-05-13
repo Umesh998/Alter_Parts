@@ -320,110 +320,396 @@
 
 
 
+//using Alter_Parts.Models;
+//using Vinrox_Tools.Services;
+//using System.Text.Json;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Threading.Tasks;
+//using System;
+
+//namespace Alter_Parts.Services
+//{
+//    public class PartLookupService
+//    {
+//        // ── ACTIVE SERVICES ──
+//        private readonly DigiKeyService _digikey;
+//        private readonly MouserService _mouser;
+
+//        // 💡 FUTURE SERVICES (Uncomment when you have API keys)
+//        // private readonly NexarService _nexar;
+//        private readonly LCSCService _lcsc;
+
+//        public PartLookupService(
+//            DigiKeyService digikey,
+//            MouserService mouser,
+//        // NexarService nexar, 
+//         LCSCService lcsc
+
+//        )
+//        {
+//            _digikey = digikey;
+//            _mouser = mouser;
+
+//            // _nexar = nexar;
+//            _lcsc = lcsc;
+//        }
+
+//        public async Task<PartDetails> GetPartDetails(string mpn)
+//        {
+//            // ── 1. PRIMARY: Nexar (Commented for future use) ──────
+//            /*
+//            try
+//            {
+//                var rawJson = await _nexar.GetPartDetailsAsync(mpn);
+//                var result = ParseNexarResponse(rawJson, mpn);
+//                if (result.Source != "Not Found") return result;
+//            }
+//            catch { } // If Nexar fails, move to DigiKey
+//            */
+
+
+//            // ── 2. ACTIVE: DigiKey ──────────────────────────────────
+//            try
+//            {
+//                var result = await _digikey.GetPartDetails(mpn);
+//                if (result != null) return result;
+//            }
+//            catch { /* If DigiKey fails, swallow it and move to Mouser */ }
+
+
+//            // ── 3. ACTIVE: Mouser ───────────────────────────────────
+//            try
+//            {
+//                var result = await _mouser.GetPartDetails(mpn);
+//                if (result != null) return result;
+//            }
+//            catch { /* If Mouser fails, move to LCSC */ }
+
+
+//            // ── 4. FALLBACK: LCSC (Commented for future use) ────────
+
+//            try
+//            {
+//                var lcscData = await _lcsc.GetPartByMpn(mpn);
+//                if (lcscData != null)
+//                {
+//                    return new PartDetails
+//                    {
+//                        Mpn = lcscData.MpnNumber,
+//                        Source = "LCSC",
+//                        Description = lcscData.Description,
+//                        Manufacturer = lcscData.Manufacturer,
+//                        Category = lcscData.Category,
+//                        DatasheetUrl = lcscData.DatasheetUrl,
+//                        ProductUrl = lcscData.ProductUrl,
+//                        Stock = lcscData.Stock,
+//                        Specs = new Dictionary<string, string>
+//                        {
+//                            { "Package / Case", lcscData.Package }
+//                        }
+//                    };
+//                }
+//            }
+//            catch { }
+
+
+//            // ── NOT FOUND IN ANY SERVICE ────────────────────────────
+//            return new PartDetails
+//            {
+//                Mpn = mpn,
+//                Source = "Not Found",
+//                Specs = new Dictionary<string, string>() // Prevent null reference crashes
+//            };
+//        }
+
+//        // ── UNIFIED COMPARISON ENGINE ───────────────────────────────
+//        public string ComparePartDetails(PartDetails orig, PartDetails alt)
+//        {
+//            if (orig.Source == "Not Found" || alt.Source == "Not Found")
+//                return "⚠️ Part not found in database";
+
+//            var mismatches = new List<string>();
+//            var warnings = new List<string>();
+//            var matches = new List<string>();
+
+//            string manNote = orig.Manufacturer != alt.Manufacturer
+//                ? $" [Diff Mfr: {alt.Manufacturer}]" : "";
+
+//            // Category check
+//            if (!string.IsNullOrEmpty(orig.Category) &&
+//                !string.IsNullOrEmpty(alt.Category) &&
+//                orig.Category != alt.Category)
+//            {
+//                mismatches.Add($"Category: {orig.Category} vs {alt.Category}");
+//            }
+
+//            // Ensure Specs dictionaries exist
+//            orig.Specs ??= new Dictionary<string, string>();
+//            alt.Specs ??= new Dictionary<string, string>();
+
+//            // Critical specs — mismatch = not compatible
+//            var criticalSpecs = new[]
+//            {
+//                "Case/Package", "Package / Case", "Supplier Device Package",
+//                "Number of Pins", "Pin Count",
+//                "Mounting Style", "Mounting Type"
+//            };
+
+//            // Warning specs — mismatch = check manually
+//            var warningSpecs = new[]
+//            {
+//                "Supply Voltage", "Voltage - Supply",
+//                "Operating Temperature",
+//                "Output Current", "Current - Output",
+//                "Power Rating", "Part Status"
+//            };
+
+//            // Check Critical Specs
+//            foreach (var specName in criticalSpecs)
+//            {
+//                var key1 = orig.Specs.Keys.FirstOrDefault(k => k.Contains(specName, StringComparison.OrdinalIgnoreCase));
+//                var key2 = alt.Specs.Keys.FirstOrDefault(k => k.Contains(specName, StringComparison.OrdinalIgnoreCase));
+
+//                if (key1 == null || key2 == null) continue;
+
+//                if (orig.Specs[key1].Equals(alt.Specs[key2], StringComparison.OrdinalIgnoreCase))
+//                    matches.Add($"{specName.Split('/')[0].Trim()}: {orig.Specs[key1]}");
+//                else
+//                    mismatches.Add($"{specName.Split('/')[0].Trim()}: {orig.Specs[key1]} vs {alt.Specs[key2]}");
+//            }
+
+//            // Check Warning Specs
+//            foreach (var specName in warningSpecs)
+//            {
+//                var key1 = orig.Specs.Keys.FirstOrDefault(k => k.Contains(specName, StringComparison.OrdinalIgnoreCase));
+//                var key2 = alt.Specs.Keys.FirstOrDefault(k => k.Contains(specName, StringComparison.OrdinalIgnoreCase));
+
+//                if (key1 == null || key2 == null) continue;
+
+//                if (orig.Specs[key1].Equals(alt.Specs[key2], StringComparison.OrdinalIgnoreCase))
+//                    matches.Add($"{specName.Split('-')[0].Trim()}: {orig.Specs[key1]}");
+//                else
+//                    warnings.Add($"{specName.Split('-')[0].Trim()}: {orig.Specs[key1]} vs {alt.Specs[key2]}");
+//            }
+
+//            // Dynamically show where the data came from
+//            string src = $" [{orig.Source}→{alt.Source}]";
+
+//            if (mismatches.Count > 0)
+//                return $"❌ Not Compatible - {string.Join(", ", mismatches)}{manNote}{src}";
+
+//            if (warnings.Count > 0 && matches.Count == 0)
+//                return $"⚠️ Check Manually - {string.Join(", ", warnings)}{manNote}{src}";
+
+//            if (warnings.Count > 0)
+//                return $"⚠️ Likely Compatible (verify: {string.Join(", ", warnings)}){manNote}{src}";
+
+//            if (matches.Count > 0)
+//                return $"✅ Compatible - {string.Join(", ", matches)}{manNote}{src}";
+
+//            return $"⚠️ Check Manually (no matching specs found){manNote}{src}";
+//        }
+
+//        // ── NEXAR PARSER (Commented for future use) ─────────────────
+//        /*
+//        private PartDetails ParseNexarResponse(string json, string mpn)
+//        {
+//            using var doc = JsonDocument.Parse(json);
+//            var root = doc.RootElement;
+
+//            if (!root.TryGetProperty("data", out var data) ||
+//                !data.TryGetProperty("supSearchMpn", out var search) ||
+//                search.ValueKind == JsonValueKind.Null ||
+//                !search.TryGetProperty("results", out var results) ||
+//                results.GetArrayLength() == 0)
+//                return new PartDetails { Mpn = mpn, Source = "Not Found" };
+
+//            var part = results[0].GetProperty("part");
+
+//            // Extract specs
+//            var specs = new Dictionary<string, string>();
+//            if (part.TryGetProperty("specs", out var specList) && specList.ValueKind != JsonValueKind.Null)
+//            {
+//                foreach (var spec in specList.EnumerateArray())
+//                {
+//                    if (!spec.TryGetProperty("attribute", out var attr)) continue;
+//                    var name = attr.TryGetProperty("name", out var n) ? n.GetString() : null;
+//                    var val = spec.TryGetProperty("displayValue", out var v) ? v.GetString() : null;
+//                    if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(val))
+//                        specs[name] = val;
+//                }
+//            }
+
+//            return new PartDetails
+//            {
+//                Mpn = part.TryGetProperty("mpn", out var m) ? m.GetString() : mpn,
+//                Description = part.TryGetProperty("shortDescription", out var d) ? d.GetString() : "",
+//                Manufacturer = part.TryGetProperty("manufacturer", out var mfr) && mfr.ValueKind != JsonValueKind.Null && mfr.TryGetProperty("name", out var mn) ? mn.GetString() : "",
+//                Category = part.TryGetProperty("category", out var cat) && cat.ValueKind != JsonValueKind.Null && cat.TryGetProperty("name", out var cn) ? cn.GetString() : "",
+//                DatasheetUrl = part.TryGetProperty("bestDatasheet", out var ds) && ds.ValueKind != JsonValueKind.Null && ds.TryGetProperty("url", out var du) ? du.GetString() : "",
+//                Specs = specs,
+//                Source = "Nexar"
+//            };
+//        }
+//        */
+//    }
+//}
+
+
+
+
+
+
+
+
+
+
+
 using Alter_Parts.Models;
-using Vinrox_Tools.Services;
-using System.Text.Json;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using System;
 
 namespace Alter_Parts.Services
 {
     public class PartLookupService
     {
-        // ── ACTIVE SERVICES ──
         private readonly DigiKeyService _digikey;
         private readonly MouserService _mouser;
-
-        // 💡 FUTURE SERVICES (Uncomment when you have API keys)
-        // private readonly NexarService _nexar;
         private readonly LCSCService _lcsc;
 
         public PartLookupService(
             DigiKeyService digikey,
             MouserService mouser,
-        // NexarService nexar, 
-         LCSCService lcsc
-
-        )
+            LCSCService lcsc)
         {
             _digikey = digikey;
             _mouser = mouser;
-
-            // _nexar = nexar;
             _lcsc = lcsc;
         }
 
+        // ── SINGLE PART LOOKUP ──────────────────────────────────────
+        // Runs all three APIs in parallel, returns the first one that
+        // finds the part. Priority: DigiKey → Mouser → LCSC
         public async Task<PartDetails> GetPartDetails(string mpn)
         {
-            // ── 1. PRIMARY: Nexar (Commented for future use) ──────
-            /*
-            try
+            Console.WriteLine($"[LOOKUP] Searching for MPN: {mpn}");
+
+            // Run all three in parallel
+            var digiKeyTask = SafeGetDigiKey(mpn);
+            var mouserTask = SafeGetMouser(mpn);
+            var lcscTask = SafeGetLCSC(mpn);
+
+            await Task.WhenAll(digiKeyTask, mouserTask, lcscTask);
+
+            var digiKeyResult = await digiKeyTask;
+            var mouserResult = await mouserTask;
+            var lcscResult = await lcscTask;
+
+            // Return in priority order
+            if (digiKeyResult != null)
             {
-                var rawJson = await _nexar.GetPartDetailsAsync(mpn);
-                var result = ParseNexarResponse(rawJson, mpn);
-                if (result.Source != "Not Found") return result;
+                Console.WriteLine($"[LOOKUP] Found on DigiKey: {digiKeyResult.Manufacturer}");
+                return digiKeyResult;
             }
-            catch { } // If Nexar fails, move to DigiKey
-            */
 
-
-            // ── 2. ACTIVE: DigiKey ──────────────────────────────────
-            try
+            if (mouserResult != null)
             {
-                var result = await _digikey.GetPartDetails(mpn);
-                if (result != null) return result;
+                Console.WriteLine($"[LOOKUP] Found on Mouser: {mouserResult.Manufacturer}");
+                return mouserResult;
             }
-            catch { /* If DigiKey fails, swallow it and move to Mouser */ }
 
-
-            // ── 3. ACTIVE: Mouser ───────────────────────────────────
-            try
+            if (lcscResult != null)
             {
-                var result = await _mouser.GetPartDetails(mpn);
-                if (result != null) return result;
+                Console.WriteLine($"[LOOKUP] Found on LCSC: {lcscResult.Manufacturer}");
+                return lcscResult;
             }
-            catch { /* If Mouser fails, move to LCSC */ }
 
-
-            // ── 4. FALLBACK: LCSC (Commented for future use) ────────
-
-            try
-            {
-                var lcscData = await _lcsc.GetPartByMpn(mpn);
-                if (lcscData != null)
-                {
-                    return new PartDetails
-                    {
-                        Mpn = lcscData.MpnNumber,
-                        Source = "LCSC",
-                        Description = lcscData.Description,
-                        Manufacturer = lcscData.Manufacturer,
-                        Category = lcscData.Category,
-                        DatasheetUrl = lcscData.DatasheetUrl,
-                        ProductUrl = lcscData.ProductUrl,
-                        Stock = lcscData.Stock,
-                        Specs = new Dictionary<string, string>
-                        {
-                            { "Package / Case", lcscData.Package }
-                        }
-                    };
-                }
-            }
-            catch { }
-
-
-            // ── NOT FOUND IN ANY SERVICE ────────────────────────────
+            Console.WriteLine($"[LOOKUP] Not found anywhere: {mpn}");
             return new PartDetails
             {
                 Mpn = mpn,
                 Source = "Not Found",
-                Specs = new Dictionary<string, string>() // Prevent null reference crashes
+                Specs = new Dictionary<string, string>()
             };
         }
 
-        // ── UNIFIED COMPARISON ENGINE ───────────────────────────────
+        // ── MULTI-DISTRIBUTOR LOOKUP ────────────────────────────────
+        // Returns results from ALL three distributors for comparison
+        public async Task<MultiDistributorResult> GetPartFromAllDistributors(string mpn)
+        {
+            Console.WriteLine($"[LOOKUP] Multi-distributor search for: {mpn}");
+
+            var digiKeyTask = SafeGetDigiKey(mpn);
+            var mouserTask = SafeGetMouser(mpn);
+            var lcscTask = SafeGetLCSC(mpn);
+
+            await Task.WhenAll(digiKeyTask, mouserTask, lcscTask);
+
+            var result = new MultiDistributorResult
+            {
+                Mpn = mpn,
+                DigiKey = await digiKeyTask,
+                Mouser = await mouserTask,
+                LCSC = await lcscTask
+            };
+
+            // Pick best manufacturer from whichever source found it
+            result.Manufacturer =
+                result.DigiKey?.Manufacturer ??
+                result.Mouser?.Manufacturer ??
+                result.LCSC?.Manufacturer ??
+                "Unknown";
+
+            result.Description =
+                result.DigiKey?.Description ??
+                result.Mouser?.Description ??
+                result.LCSC?.Description ??
+                "";
+
+            result.Category =
+                result.DigiKey?.Category ??
+                result.Mouser?.Category ??
+                result.LCSC?.Category ??
+                "";
+
+            Console.WriteLine($"[LOOKUP] DigiKey: {(result.DigiKey != null ? "✓" : "✗")} | " +
+                              $"Mouser: {(result.Mouser != null ? "✓" : "✗")} | " +
+                              $"LCSC: {(result.LCSC != null ? "✓" : "✗")}");
+
+            return result;
+        }
+
+        // ── DESCRIPTION SEARCH ──────────────────────────────────────
+        // Searches all three APIs by description and merges results
+        public async Task<List<PartDetails>> SearchByDescription(
+            string description, int limit = 10)
+        {
+            Console.WriteLine($"[LOOKUP] Description search: {description}");
+
+            var digiKeyTask = SafeSearchDescriptionDigiKey(description, limit);
+            var mouserTask = SafeSearchDescriptionMouser(description, limit);
+            var lcscTask = SafeSearchDescriptionLCSC(description, limit);
+
+            await Task.WhenAll(digiKeyTask, mouserTask, lcscTask);
+
+            var combined = new List<PartDetails>();
+            combined.AddRange(await digiKeyTask);
+            combined.AddRange(await mouserTask);
+            combined.AddRange(await lcscTask);
+
+            Console.WriteLine($"[LOOKUP] Description search found {combined.Count} total results");
+
+            // Sort by match score descending
+            return combined
+                .OrderByDescending(r =>
+                    double.TryParse(
+                        r.Specs.GetValueOrDefault("Match Score", "0")
+                         .Replace("%", ""),
+                        out var score) ? score : 0)
+                .Take(limit)
+                .ToList();
+        }
+
+        // ── COMPARISON ENGINE ───────────────────────────────────────
         public string ComparePartDetails(PartDetails orig, PartDetails alt)
         {
             if (orig.Source == "Not Found" || alt.Source == "Not Found")
@@ -444,11 +730,9 @@ namespace Alter_Parts.Services
                 mismatches.Add($"Category: {orig.Category} vs {alt.Category}");
             }
 
-            // Ensure Specs dictionaries exist
             orig.Specs ??= new Dictionary<string, string>();
             alt.Specs ??= new Dictionary<string, string>();
 
-            // Critical specs — mismatch = not compatible
             var criticalSpecs = new[]
             {
                 "Case/Package", "Package / Case", "Supplier Device Package",
@@ -456,7 +740,6 @@ namespace Alter_Parts.Services
                 "Mounting Style", "Mounting Type"
             };
 
-            // Warning specs — mismatch = check manually
             var warningSpecs = new[]
             {
                 "Supply Voltage", "Voltage - Supply",
@@ -465,35 +748,43 @@ namespace Alter_Parts.Services
                 "Power Rating", "Part Status"
             };
 
-            // Check Critical Specs
             foreach (var specName in criticalSpecs)
             {
-                var key1 = orig.Specs.Keys.FirstOrDefault(k => k.Contains(specName, StringComparison.OrdinalIgnoreCase));
-                var key2 = alt.Specs.Keys.FirstOrDefault(k => k.Contains(specName, StringComparison.OrdinalIgnoreCase));
+                var key1 = orig.Specs.Keys.FirstOrDefault(
+                    k => k.Contains(specName, StringComparison.OrdinalIgnoreCase));
+                var key2 = alt.Specs.Keys.FirstOrDefault(
+                    k => k.Contains(specName, StringComparison.OrdinalIgnoreCase));
 
                 if (key1 == null || key2 == null) continue;
 
-                if (orig.Specs[key1].Equals(alt.Specs[key2], StringComparison.OrdinalIgnoreCase))
+                if (orig.Specs[key1].Equals(
+                    alt.Specs[key2], StringComparison.OrdinalIgnoreCase))
                     matches.Add($"{specName.Split('/')[0].Trim()}: {orig.Specs[key1]}");
                 else
-                    mismatches.Add($"{specName.Split('/')[0].Trim()}: {orig.Specs[key1]} vs {alt.Specs[key2]}");
+                    mismatches.Add(
+                        $"{specName.Split('/')[0].Trim()}: " +
+                        $"{orig.Specs[key1]} vs {alt.Specs[key2]}");
             }
 
-            // Check Warning Specs
             foreach (var specName in warningSpecs)
             {
-                var key1 = orig.Specs.Keys.FirstOrDefault(k => k.Contains(specName, StringComparison.OrdinalIgnoreCase));
-                var key2 = alt.Specs.Keys.FirstOrDefault(k => k.Contains(specName, StringComparison.OrdinalIgnoreCase));
+                var key1 = orig.Specs.Keys.FirstOrDefault(
+                    k => k.Contains(specName, StringComparison.OrdinalIgnoreCase));
+                var key2 = alt.Specs.Keys.FirstOrDefault(
+                    k => k.Contains(specName, StringComparison.OrdinalIgnoreCase));
 
                 if (key1 == null || key2 == null) continue;
 
-                if (orig.Specs[key1].Equals(alt.Specs[key2], StringComparison.OrdinalIgnoreCase))
-                    matches.Add($"{specName.Split('-')[0].Trim()}: {orig.Specs[key1]}");
+                if (orig.Specs[key1].Equals(
+                    alt.Specs[key2], StringComparison.OrdinalIgnoreCase))
+                    matches.Add(
+                        $"{specName.Split('-')[0].Trim()}: {orig.Specs[key1]}");
                 else
-                    warnings.Add($"{specName.Split('-')[0].Trim()}: {orig.Specs[key1]} vs {alt.Specs[key2]}");
+                    warnings.Add(
+                        $"{specName.Split('-')[0].Trim()}: " +
+                        $"{orig.Specs[key1]} vs {alt.Specs[key2]}");
             }
 
-            // Dynamically show where the data came from
             string src = $" [{orig.Source}→{alt.Source}]";
 
             if (mismatches.Count > 0)
@@ -511,47 +802,152 @@ namespace Alter_Parts.Services
             return $"⚠️ Check Manually (no matching specs found){manNote}{src}";
         }
 
-        // ── NEXAR PARSER (Commented for future use) ─────────────────
-        /*
-        private PartDetails ParseNexarResponse(string json, string mpn)
+        // ── SAFE WRAPPERS ───────────────────────────────────────────
+        // These prevent one failing API from crashing the whole lookup
+
+        private async Task<PartDetails?> SafeGetDigiKey(string mpn)
         {
-            using var doc = JsonDocument.Parse(json);
-            var root = doc.RootElement;
-
-            if (!root.TryGetProperty("data", out var data) ||
-                !data.TryGetProperty("supSearchMpn", out var search) ||
-                search.ValueKind == JsonValueKind.Null ||
-                !search.TryGetProperty("results", out var results) ||
-                results.GetArrayLength() == 0)
-                return new PartDetails { Mpn = mpn, Source = "Not Found" };
-
-            var part = results[0].GetProperty("part");
-
-            // Extract specs
-            var specs = new Dictionary<string, string>();
-            if (part.TryGetProperty("specs", out var specList) && specList.ValueKind != JsonValueKind.Null)
+            try
             {
-                foreach (var spec in specList.EnumerateArray())
-                {
-                    if (!spec.TryGetProperty("attribute", out var attr)) continue;
-                    var name = attr.TryGetProperty("name", out var n) ? n.GetString() : null;
-                    var val = spec.TryGetProperty("displayValue", out var v) ? v.GetString() : null;
-                    if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(val))
-                        specs[name] = val;
-                }
+                var result = await _digikey.GetPartDetails(mpn);
+                Console.WriteLine($"[DIGIKEY] {mpn} => " +
+                    $"{(result != null ? result.Manufacturer : "NULL")}");
+                return result;
             }
-
-            return new PartDetails
+            catch (Exception ex)
             {
-                Mpn = part.TryGetProperty("mpn", out var m) ? m.GetString() : mpn,
-                Description = part.TryGetProperty("shortDescription", out var d) ? d.GetString() : "",
-                Manufacturer = part.TryGetProperty("manufacturer", out var mfr) && mfr.ValueKind != JsonValueKind.Null && mfr.TryGetProperty("name", out var mn) ? mn.GetString() : "",
-                Category = part.TryGetProperty("category", out var cat) && cat.ValueKind != JsonValueKind.Null && cat.TryGetProperty("name", out var cn) ? cn.GetString() : "",
-                DatasheetUrl = part.TryGetProperty("bestDatasheet", out var ds) && ds.ValueKind != JsonValueKind.Null && ds.TryGetProperty("url", out var du) ? du.GetString() : "",
-                Specs = specs,
-                Source = "Nexar"
-            };
+                Console.WriteLine($"[DIGIKEY] Exception for {mpn}: {ex.Message}");
+                return null;
+            }
         }
-        */
+
+        private async Task<PartDetails?> SafeGetMouser(string mpn)
+        {
+            try
+            {
+                var result = await _mouser.GetPartDetails(mpn);
+                Console.WriteLine($"[MOUSER] {mpn} => " +
+                    $"{(result != null ? result.Manufacturer : "NULL")}");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[MOUSER] Exception for {mpn}: {ex.Message}");
+                return null;
+            }
+        }
+
+        private async Task<PartDetails?> SafeGetLCSC(string mpn)
+        {
+            try
+            {
+                Console.WriteLine($"[LCSC] Calling GetPartByMpn for: {mpn}");
+                var lcscData = await _lcsc.GetPartByMpn(mpn);
+
+                if (lcscData == null)
+                {
+                    Console.WriteLine($"[LCSC] {mpn} => NULL");
+                    return null;
+                }
+
+                Console.WriteLine($"[LCSC] {mpn} => {lcscData.Manufacturer}");
+
+                return new PartDetails
+                {
+                    Mpn = lcscData.MpnNumber,
+                    Source = "LCSC",
+                    Description = lcscData.Description,
+                    Manufacturer = lcscData.Manufacturer,
+                    Category = lcscData.Category,
+                    DatasheetUrl = lcscData.DatasheetUrl,
+                    ProductUrl = lcscData.ProductUrl,
+                    Stock = lcscData.Stock,
+                    Price = lcscData.Price,
+                    Specs = new Dictionary<string, string>
+                    {
+                        { "Package / Case", lcscData.Package ?? "" },
+                        { "LCSC Part #",    lcscData.LcscPartNumber ?? "" },
+                        { "Match Score",    $"{lcscData.MatchScore}%" }
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[LCSC] Exception for {mpn}: {ex.Message}");
+                return null;
+            }
+        }
+
+        private async Task<List<PartDetails>> SafeSearchDescriptionDigiKey(
+            string description, int limit)
+        {
+            try { return await _digikey.SearchByDescription(description, limit); }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[DIGIKEY] Description search error: {ex.Message}");
+                return new List<PartDetails>();
+            }
+        }
+
+        private async Task<List<PartDetails>> SafeSearchDescriptionMouser(
+            string description, int limit)
+        {
+            try { return await _mouser.SearchByDescription(description, limit); }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[MOUSER] Description search error: {ex.Message}");
+                return new List<PartDetails>();
+            }
+        }
+
+        private async Task<List<PartDetails>> SafeSearchDescriptionLCSC(
+            string description, int limit)
+        {
+            try
+            {
+                var lcscResults = await _lcsc.SearchByKeyword(description, limit);
+                return lcscResults.Select(r => new PartDetails
+                {
+                    Mpn = r.MpnNumber,
+                    Source = "LCSC",
+                    Description = r.Description,
+                    Manufacturer = r.Manufacturer,
+                    Category = r.Category,
+                    DatasheetUrl = r.DatasheetUrl,
+                    ProductUrl = r.ProductUrl,
+                    Stock = r.Stock,
+                    Price = r.Price,
+                    Specs = new Dictionary<string, string>
+                    {
+                        { "Package / Case", r.Package ?? "" },
+                        { "LCSC Part #",    r.LcscPartNumber ?? "" },
+                        { "Match Score",    $"{r.MatchScore}%" }
+                    }
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[LCSC] Description search error: {ex.Message}");
+                return new List<PartDetails>();
+            }
+        }
+    }
+
+    // ── MULTI-DISTRIBUTOR RESULT MODEL ──────────────────────────────
+    public class MultiDistributorResult
+    {
+        public string Mpn { get; set; } = "";
+        public string Manufacturer { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string Category { get; set; } = "";
+        public PartDetails? DigiKey { get; set; }
+        public PartDetails? Mouser { get; set; }
+        public PartDetails? LCSC { get; set; }
+
+        public bool FoundAnywhere =>
+            DigiKey != null || Mouser != null || LCSC != null;
+
+        public PartDetails? BestResult =>
+            DigiKey ?? Mouser ?? LCSC;
     }
 }

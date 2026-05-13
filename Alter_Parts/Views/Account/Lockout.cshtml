@@ -1,0 +1,42 @@
+﻿@{
+    ViewData["Title"] = "Account Locked";
+    Layout = "~/Views/Account/_AccountLayout.cshtml";
+}
+
+<div class="ap-page">
+    <div class="ap-card">
+        <div class="ap-card-header">
+            <div class="eyebrow">// auth.lockout</div>
+            <h1>Account Locked</h1>
+        </div>
+
+        <div class="ap-card-body" style="text-align:center;padding:2.5rem 2rem">
+
+            <div class="status-icon icon-danger" style="margin:0 auto 1.5rem">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+            </div>
+
+            <p style="color:var(--text-muted);font-size:.95rem;line-height:1.7;margin-bottom:1.5rem">
+                This account has been temporarily locked after too many failed login attempts.
+                <br><br>
+                <span style="font-family:var(--mono);font-size:.8rem;color:var(--text-muted)">
+                    LOCKOUT DURATION: 15 MINUTES
+                </span>
+            </p>
+
+            <div style="background:rgba(192,57,43,.07);border:1px solid rgba(192,57,43,.2);padding:1rem;margin-bottom:1.75rem;font-size:.82rem;color:#c97070;font-family:var(--mono);line-height:1.7;text-align:left">
+                > MAX FAILED ATTEMPTS REACHED<br>
+                > ACCESS TEMPORARILY SUSPENDED<br>
+                > RETRY AFTER LOCKOUT EXPIRES
+            </div>
+
+            <a href="/Account/Login" class="btn btn-outline" style="display:inline-flex">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6" /></svg>
+                Return to Login
+            </a>
+        </div>
+    </div>
+</div>

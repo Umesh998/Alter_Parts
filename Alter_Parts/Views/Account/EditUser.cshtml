@@ -1,0 +1,80 @@
+﻿@model Alter_Parts.ViewModels.EditUserViewModel
+@{
+    ViewData["Title"] = "Edit User";
+    Layout = "~/Views/Account/_AccountLayout.cshtml";
+}
+
+<div class="ap-page">
+    <div class="ap-card">
+        <div class="ap-card-header">
+            <div class="eyebrow">// admin.edit_user</div>
+            <h1>Edit User</h1>
+        </div>
+
+        <div class="ap-card-body">
+
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ContainsKey(string.Empty))
+            {
+                <div class="alert alert-danger">
+                    @Html.ValidationSummary(true)
+                </div>
+            }
+
+            @* Current roles display *@
+            @if (Model.CurrentRoles.Any())
+            {
+                <div style="margin-bottom:1.25rem">
+                    <div class="form-label">Current Roles</div>
+                    <div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.35rem">
+                        @foreach (var role in Model.CurrentRoles)
+                        {
+                            <span class="badge badge-role">@role</span>
+                        }
+                    </div>
+                </div>
+            }
+
+            <form method="post" action="/Account/EditUser">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label" asp-for="FirstName">First Name</label>
+                        <input class="form-control" asp-for="FirstName" autofocus />
+                        <span class="field-validation-error" asp-validation-for="FirstName"></span>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label" asp-for="LastName">Last Name</label>
+                        <input class="form-control" asp-for="LastName" />
+                        <span class="field-validation-error" asp-validation-for="LastName"></span>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top:1.25rem">
+                    <label class="form-label" asp-for="Email">Email Address</label>
+                    <input class="form-control" asp-for="Email" type="email" />
+                    <span class="field-validation-error" asp-validation-for="Email"></span>
+                </div>
+
+                <div style="height:1px;background:var(--border);margin:1.25rem 0"></div>
+
+                <div style="display:flex;gap:.75rem">
+                    <a href="/Account/ManageUsers" class="btn btn-outline" style="flex:1">Cancel</a>
+                    <button type="submit" class="btn btn-primary" style="flex:2">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z" />
+                            <polyline points="17 21 17 13 7 13 7 21" />
+                            <polyline points="7 3 7 8 15 8" />
+                        </svg>
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

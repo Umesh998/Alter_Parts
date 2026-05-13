@@ -1,0 +1,49 @@
+﻿@{
+    ViewData["Title"] = "Access Denied";
+    Layout = "~/Views/Account/_AccountLayout.cshtml";
+}
+
+<div class="ap-page">
+    <div class="ap-card">
+        <div class="ap-card-header">
+            <div class="eyebrow">// auth.403</div>
+            <h1>Access Denied</h1>
+        </div>
+
+        <div class="ap-card-body" style="text-align:center;padding:2.5rem 2rem">
+
+            <div class="status-icon icon-warning" style="margin:0 auto 1.5rem">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+            </div>
+
+            <p style="color:var(--text-muted);font-size:.95rem;line-height:1.7;margin-bottom:1.5rem">
+                Your account does not have permission to access this resource.
+                <br><br>
+                <span style="font-family:var(--mono);font-size:.8rem">
+                    HTTP 403 — FORBIDDEN
+                </span>
+            </p>
+
+            <div style="background:rgba(230,126,34,.07);border:1px solid rgba(230,126,34,.2);padding:1rem;margin-bottom:1.75rem;font-size:.82rem;color:#d4956a;font-family:var(--mono);line-height:1.7;text-align:left">
+                > AUTHORIZATION CHECK FAILED<br>
+                > REQUIRED ROLE NOT ASSIGNED<br>
+                > CONTACT ADMINISTRATOR FOR ACCESS
+            </div>
+
+            <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap">
+                <a href="/" class="btn btn-outline">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg>
+                    Dashboard
+                </a>
+                <a href="/Account/Profile" class="btn btn-outline">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                    My Profile
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

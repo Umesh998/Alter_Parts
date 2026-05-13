@@ -213,61 +213,65 @@ namespace Alter_Parts.Services
         {
             if (string.IsNullOrWhiteSpace(keyword)) return new List<LCSCPartResult>();
 
-            var key = _config["LCSC:Key"];
-            var secret = _config["LCSC:Secret"];
-            var nonce = Guid.NewGuid().ToString("N")[..16];
-            var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
+            var key = _config["ApiSettings:LCSC:ApiKey"];
+            var secret = _config["ApiSettings:LCSC:ApiSecret"];
 
-            // 🚨 CRITICAL: The signature MUST be in this exact alphabetical order:
-            // key -> nonce -> secret -> timestamp
+            if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(secret))
+            {
+                Debug.WriteLine("[LCSC] API key or secret is missing from config!");
+                return new List<LCSCPartResult>();
+            }
+
+            var nonce = Guid.NewGuid().ToString("N")[..16];
+            var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString();
+
             var rawSignature = $"key={key}&nonce={nonce}&secret={secret}&timestamp={timestamp}";
 
             using var sha1 = SHA1.Create();
             var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(rawSignature));
             var signature = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
 
-            // Build the URL with all auth params included as Query Strings
             var url = $"{BaseUrl}?" +
                       $"key={Uri.EscapeDataString(key)}" +
                       $"&nonce={nonce}" +
                       $"&timestamp={timestamp}" +
-                      $"&signature={signature}" +
+                      $"&sign={signature}" +
                       $"&keyword={Uri.EscapeDataString(keyword)}" +
                       $"&match_type=fuzzy" +
                       $"&page_size={limit}";
+
+            Debug.WriteLine($"[LCSC DEBUG] Raw signature string: {rawSignature}");
+            Debug.WriteLine($"[LCSC DEBUG] Generated signature: {signature}");
+            Debug.WriteLine($"[LCSC DEBUG] URL: {url}");
 
             try
             {
                 var response = await _httpClient.GetAsync(url);
                 var content = await response.Content.ReadAsStringAsync();
 
-                // Log the result to Output window for you to see
-                Debug.WriteLine($"[LCSC DEBUG] URL: {url}");
+                Debug.WriteLine($"[LCSC DEBUG] Status: {response.StatusCode}");
                 Debug.WriteLine($"[LCSC DEBUG] Response: {content}");
 
                 if (!response.IsSuccessStatusCode)
-                {
-                    // If still 403, the firewall is still blocking the IP or headers
                     return new List<LCSCPartResult>();
-                }
 
                 using var doc = JsonDocument.Parse(content);
                 var root = doc.RootElement;
 
-                // Check for LCSC API success code
                 if (root.TryGetProperty("code", out var apiCode) && apiCode.GetInt32() != 200)
                     return new List<LCSCPartResult>();
 
                 var results = new List<LCSCPartResult>();
-                if (!root.TryGetProperty("result", out var resultObj)) return results;
+                if (!root.TryGetProperty("result", out var resultObj))
+                    return results;
 
-                // Find the list in the JSON structure
                 JsonElement list = default;
                 if (resultObj.TryGetProperty("productList", out var pl)) list = pl;
                 else if (resultObj.TryGetProperty("list", out var l)) list = l;
                 else if (resultObj.ValueKind == JsonValueKind.Array) list = resultObj;
 
-                if (list.ValueKind != JsonValueKind.Array) return results;
+                if (list.ValueKind != JsonValueKind.Array)
+                    return results;
 
                 foreach (var item in list.EnumerateArray())
                 {
@@ -283,14 +287,18 @@ namespace Alter_Parts.Services
                         MatchScore = CalculateMatch(keyword, desc)
                     });
                 }
-                return results;
+
+                return results; // ✅ return inside try
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"LCSC Connection Error: {ex.Message}");
-                return new List<LCSCPartResult>();
+                Debug.WriteLine($"[LCSC] Exception: {ex.Message}");
+                return new List<LCSCPartResult>(); // ✅ return inside catch
             }
+            // ✅ No code after try-catch needed since both paths return
         }
+
+        // ... rest of method stays the same
 
         public async Task<LCSCPartResult> GetPartByMpn(string mpn)
         {

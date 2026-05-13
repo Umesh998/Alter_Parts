@@ -1,4 +1,5 @@
 ﻿// Services/RoleSeederService.cs
+using Alter_Parts.Models;
 using Microsoft.AspNetCore.Identity;
 
 public class RoleSeederService(
@@ -27,8 +28,8 @@ public class RoleSeederService(
             {
                 UserName = adminEmail,
                 Email = adminEmail,
-                FullName = "System Administrator",
-                Department = "IT",
+                FirstName = "System",
+                LastName = "Administrator",
                 EmailConfirmed = true   // skip email confirmation for seed
             };
 

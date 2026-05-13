@@ -1,139 +1,61 @@
-﻿<!-- Views/Account/Login.cshtml -->
-@model LoginViewModel
+﻿@model Alter_Parts.ViewModels.LoginViewModel
 @{
     ViewData["Title"] = "Sign In";
-    Layout = null; // Full-page login, no nav bar
+    Layout = "~/Views/Account/_AccountLayout.cshtml";
+    var returnUrl = ViewData["ReturnUrl"] as string;
 }
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EMS Portal — Sign In</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
-    <style>
-        body {
-            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-        }
-        .login-card {
-            background: #1a1a2e;
-            border: 1px solid #334;
-            border-radius: 16px;
-            padding: 2.5rem;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-        }
-        .login-logo { color: #4fc3f7; font-size: 2rem; font-weight: 700; }
-        .form-control {
-            background: #16213e;
-            border: 1px solid #334;
-            color: #e0e0e0;
-        }
-        .form-control:focus {
-            background: #16213e;
-            border-color: #4fc3f7;
-            color: #e0e0e0;
-            box-shadow: 0 0 0 0.25rem rgba(79,195,247,0.15);
-        }
-        .btn-signin {
-            background: #0f3460;
-            border: 1px solid #4fc3f7;
-            color: #4fc3f7;
-            width: 100%;
-            padding: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-        .btn-signin:hover { background: #4fc3f7; color: #0f3460; }
-    </style>
-</head>
-<body>
-<div class="container">
-    <div class="d-flex justify-content-center">
-        <div class="login-card">
 
-            <div class="text-center mb-4">
-                <div class="login-logo">⚡ EMS Portal</div>
-                <p class="text-muted mt-1">Electronic Manufacturing Services</p>
-            </div>
+<div class="ap-page">
+    <div class="ap-card">
+        <div class="ap-card-header">
+            @* <div class="eyebrow">// auth.session</div> *@
+            <h1>Sign In</h1>
+        </div>
 
-            <form asp-action="Login" method="post" id="loginForm">
-                <input type="hidden" asp-for="ReturnUrl" />
+        <div class="ap-card-body">
+
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ContainsKey(string.Empty))
+            {
+                <div class="alert alert-danger">
+                    @Html.ValidationSummary(true)
+                </div>
+            }
+
+            <form method="post" action="/Account/Login@(returnUrl != null ? "?returnUrl=" + Uri.EscapeDataString(returnUrl) : "")">
                 @Html.AntiForgeryToken()
 
-                <div class="mb-3">
-                    <label asp-for="Email" class="form-label text-muted">Email Address</label>
-                    <input asp-for="Email" class="form-control" 
-                           placeholder="engineer@company.com" autocomplete="email" />
-                    <span asp-validation-for="Email" class="text-danger small"></span>
+                <div class="form-group">
+                    <label class="form-label" asp-for="Email">Email Address</label>
+                    <input class="form-control" asp-for="Email" type="email"
+                           placeholder="you@company.com" autocomplete="email" autofocus />
+                    <span class="field-validation-error" asp-validation-for="Email"></span>
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="Password" class="form-label text-muted">Password</label>
-                    <input asp-for="Password" class="form-control" 
-                           placeholder="••••••••" autocomplete="current-password" />
-                    <span asp-validation-for="Password" class="text-danger small"></span>
+                <div class="form-group">
+                    <label class="form-label" asp-for="Password">Password</label>
+                    <input class="form-control" asp-for="Password" type="password"
+                           placeholder="••••••••••••" autocomplete="current-password" />
+                    <span class="field-validation-error" asp-validation-for="Password"></span>
                 </div>
 
-                <div class="mb-4 d-flex justify-content-between align-items-center">
-                    <div class="form-check">
-                        <input asp-for="RememberMe" class="form-check-input" type="checkbox" />
-                        <label asp-for="RememberMe" class="form-check-label text-muted">
-                            Remember Me
-                        </label>
-                    </div>
+                <div class="form-check">
+                    <input asp-for="RememberMe" type="checkbox" id="RememberMe" />
+                    <label for="RememberMe">Keep me signed in for 8 hours</label>
                 </div>
 
-                <button type="submit" class="btn btn-signin">Sign In</button>
+                <button type="submit" class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><polyline points="10 17 15 12 10 7" /><line x1="15" y1="12" x2="3" y2="12" /></svg>
+                    Authenticate
+                </button>
             </form>
+        </div>
 
+        <div class="card-footer-link">
+            No account? <a href="/Account/Register">Create one</a>
         </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    // Show error from ModelState via TempData
-    @if (!ViewData.ModelState.IsValid)
-    {
-        var errors = ViewData.ModelState.Values
-            .SelectMany(v => v.Errors)
-            .Select(e => e.ErrorMessage)
-            .ToList();
-        var msg = Html.Raw(System.Text.Json.JsonSerializer.Serialize(errors.First()));
-        <text>
-        Swal.fire({
-            icon: 'error',
-            title: 'Sign In Failed',
-            text: @msg,
-            background: '#1a1a2e',
-            color: '#e0e0e0',
-            confirmButtonColor: '#0f3460',
-            confirmButtonText: 'Try Again'
-        });
-        </text>
-    }
-
-    // Show success message (after register redirect etc.)
-    @if (TempData["LoginSuccess"] != null)
-    {
-        <text>
-        Swal.fire({
-            icon: 'success',
-            title: 'Welcome Back!',
-            text: '@TempData["LoginSuccess"]',
-            background: '#1a1a2e',
-            color: '#e0e0e0',
-            timer: 2000,
-            showConfirmButton: false
-        });
-        </text>
-    }
-</script>
-</body>
-</html>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
