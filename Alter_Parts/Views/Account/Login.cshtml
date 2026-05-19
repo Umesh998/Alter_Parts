@@ -4,13 +4,65 @@
     Layout = "~/Views/Account/_AccountLayout.cshtml";
     var returnUrl = ViewData["ReturnUrl"] as string;
 }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EMS Portal — Sign In</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+        .login-card {
+            background: #1a1a2e;
+            border: 1px solid #334;
+            border-radius: 16px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .login-logo { color: #4fc3f7; font-size: 2rem; font-weight: 700; }
+        .form-control {
+            background: #16213e;
+            border: 1px solid #334;
+            color: #e0e0e0;
+        }
+        .form-control:focus {
+            background: #16213e;
+            border-color: #4fc3f7;
+            color: #e0e0e0;
+            box-shadow: 0 0 0 0.25rem rgba(79,195,247,0.15);
+        }
+        .btn-signin {
+            background: #0f3460;
+            border: 1px solid #4fc3f7;
+            color: #4fc3f7;
+            width: 100%;
+            padding: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .btn-signin:hover { background: #4fc3f7; color: #0f3460; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="d-flex justify-content-center">
+        <div class="login-card">
 
 <div class="ap-page">
     <div class="ap-card">
         <div class="ap-card-header">
             @* <div class="eyebrow">// auth.session</div> *@
             <h1>Sign In</h1>
-        </div>
+            </div>
 
         <div class="ap-card-body">
 
@@ -38,7 +90,8 @@
                     <span class="field-validation-error" asp-validation-for="Password"></span>
                 </div>
 
-                <div class="form-check">
+                <div class="mb-4 d-flex justify-content-between align-items-center">
+                    <div class="form-check">
                     <input asp-for="RememberMe" type="checkbox" id="RememberMe" />
                     <label for="RememberMe">Keep me signed in for 8 hours</label>
                 </div>
@@ -58,4 +111,7 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-}
+    }
+</script>
+</body>
+</html>

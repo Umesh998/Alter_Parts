@@ -15,11 +15,11 @@ public sealed class AccountController : Controller
     private readonly ILogger<AccountController> _logger;
 
     public AccountController(
-        SignInManager<ApplicationUser> signInManager,
+    SignInManager<ApplicationUser> signInManager,
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager,
         ILogger<AccountController> logger)
-    {
+{
         _signInManager = signInManager;
         _userManager = userManager;
         _roleManager = roleManager;
@@ -58,7 +58,7 @@ public sealed class AccountController : Controller
             lockoutOnFailure: true);
 
         if (result.Succeeded)
-        {
+    {
             var user = await _userManager.FindByEmailAsync(model.Email);
             _logger.LogInformation("User {Email} logged in at {Time}.", model.Email, DateTimeOffset.UtcNow);
 
@@ -82,8 +82,8 @@ public sealed class AccountController : Controller
 
         // Generic message — never distinguish bad email vs bad password
         ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-        return View(model);
-    }
+            return View(model);
+        }
 
     // ─────────────────────────────────────────────────────────────────────────
     // LOGOUT
@@ -169,7 +169,7 @@ public sealed class AccountController : Controller
         };
 
         return View(model);
-    }
+        }
 
     // ─────────────────────────────────────────────────────────────────────────
     // CHANGE PASSWORD  (any authenticated user)
@@ -183,7 +183,7 @@ public sealed class AccountController : Controller
     [Authorize]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
-    {
+        {
         if (!ModelState.IsValid)
             return View(model);
 
@@ -243,7 +243,7 @@ public sealed class AccountController : Controller
         {
             TempData["Error"] = $"Role '{role}' does not exist.";
             return RedirectToAction(nameof(ManageUsers));
-        }
+    }
 
         if (!await _userManager.IsInRoleAsync(user, role))
         {
@@ -339,7 +339,7 @@ public sealed class AccountController : Controller
 
         var existingUser = await _userManager.FindByEmailAsync(model.Email);
         if (existingUser != null)
-        {
+    {
             ModelState.AddModelError(string.Empty, "A user with this email already exists.");
             return View(model);
         }
@@ -416,7 +416,7 @@ public sealed class AccountController : Controller
         var roles = await _userManager.GetRolesAsync(user);
 
         var model = new EditUserViewModel
-        {
+    {
             Id = user.Id,
             FirstName = user.FirstName,
             LastName = user.LastName,
@@ -428,7 +428,7 @@ public sealed class AccountController : Controller
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditUser(EditUserViewModel model)
     {
