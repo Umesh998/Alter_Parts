@@ -29,6 +29,7 @@ using Alter_Parts.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using YourApp.Models;
 
 namespace Alter_Parts.Data
 {

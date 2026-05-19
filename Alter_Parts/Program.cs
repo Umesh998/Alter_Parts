@@ -69,6 +69,7 @@ using Alter_Parts.Models;
 using Alter_Parts.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using YourApp.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
