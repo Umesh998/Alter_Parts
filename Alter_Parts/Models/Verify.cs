@@ -24,6 +24,10 @@ namespace Alter_Parts.Models
         public string ProductUrl { get; set; }
         public string Stock { get; set; }
         public string MatchVerdict { get; set; }
+
+       
+        public string MslLevel { get; set; } = "N/A";   // ADD
+        public string MountType { get; set; } = "N/A";  // ADD
         public Dictionary<string, string> Specs { get; set; } = new();
     }
 
@@ -110,6 +114,10 @@ namespace Alter_Parts.Models
         public string LCSCVerdict { get; set; }
         public double LCSCScore { get; set; }
         public string BestSource { get; set; }
+
+        public string Package { get; set; } = "N/A";    // ADD
+        public string MslLevel { get; set; } = "N/A";   // ADD
+        public string MountType { get; set; } = "N/A";  // ADD
     }
 
     public class BomVerifyResult

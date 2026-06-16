@@ -4,71 +4,309 @@
     Layout = "~/Views/Account/_AccountLayout.cshtml";
     var returnUrl = ViewData["ReturnUrl"] as string;
 }
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EMS Portal — Sign In</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
-    <style>
-        body {
-            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
-            min-height: 100vh;
+
+<style>
+    .signin-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        background: #f5f5f3;
+    }
+
+    .signin-wrapper {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .signin-brand {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .signin-brand-icon {
+        width: 36px;
+        height: 36px;
+        background: #e8f0fe;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .signin-brand-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke: #1a56db;
+        }
+
+    .signin-brand-name {
+        font-size: 17px;
+        font-weight: 500;
+        color: #111;
+        letter-spacing: -0.01em;
+    }
+
+    .signin-brand-sub {
+        font-size: 13px;
+        color: #888;
+        margin: 0;
+    }
+
+    .signin-card {
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        border-radius: 14px;
+        padding: 1.75rem;
+    }
+
+        .signin-card .form-group {
+            margin-bottom: 1.1rem;
+        }
+
+        .signin-card .form-label {
+            display: block;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        .signin-card .label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .signin-card .forgot-link {
+            font-size: 12px;
+            color: #1a56db;
+            text-decoration: none;
+        }
+
+            .signin-card .forgot-link:hover {
+                text-decoration: underline;
+            }
+
+        .signin-card .input-wrap {
+            position: relative;
+        }
+
+        .signin-card .input-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            stroke: #aaa;
+            pointer-events: none;
+        }
+
+        .signin-card .input-icon-right {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            stroke: #aaa;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0;
             display: flex;
             align-items: center;
         }
-        .login-card {
-            background: #1a1a2e;
-            border: 1px solid #334;
-            border-radius: 16px;
-            padding: 2.5rem;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-        }
-        .login-logo { color: #4fc3f7; font-size: 2rem; font-weight: 700; }
-        .form-control {
-            background: #16213e;
-            border: 1px solid #334;
-            color: #e0e0e0;
-        }
-        .form-control:focus {
-            background: #16213e;
-            border-color: #4fc3f7;
-            color: #e0e0e0;
-            box-shadow: 0 0 0 0.25rem rgba(79,195,247,0.15);
-        }
-        .btn-signin {
-            background: #0f3460;
-            border: 1px solid #4fc3f7;
-            color: #4fc3f7;
-            width: 100%;
-            padding: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-        .btn-signin:hover { background: #4fc3f7; color: #0f3460; }
-    </style>
-</head>
-<body>
-<div class="container">
-    <div class="d-flex justify-content-center">
-        <div class="login-card">
 
-<div class="ap-page">
-    <div class="ap-card">
-        <div class="ap-card-header">
-            @* <div class="eyebrow">// auth.session</div> *@
-            <h1>Sign In</h1>
+        .signin-card .form-control {
+            width: 100%;
+            box-sizing: border-box;
+            height: 38px;
+            padding: 0 12px 0 34px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #fafafa;
+            color: #111;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+            .signin-card .form-control:focus {
+                border-color: #1a56db;
+                box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+                background: #fff;
+            }
+
+            .signin-card .form-control.has-right-icon {
+                padding-right: 34px;
+            }
+
+        .signin-card .field-validation-error {
+            display: block;
+            font-size: 12px;
+            color: #c0392b;
+            margin-top: 4px;
+        }
+
+        .signin-card .remember-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 1.4rem;
+        }
+
+            .signin-card .remember-row input[type="checkbox"] {
+                width: 15px;
+                height: 15px;
+                accent-color: #1a56db;
+                cursor: pointer;
+            }
+
+            .signin-card .remember-row label {
+                font-size: 13px;
+                color: #555;
+                cursor: pointer;
+            }
+
+    .btn-authenticate {
+        width: 100%;
+        height: 40px;
+        border-radius: 8px;
+        border: 1px solid #c7d7fb;
+        background: #e8f0fe;
+        color: #1a56db;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: background 0.15s, color 0.15s;
+    }
+
+        .btn-authenticate:hover {
+            background: #1a56db;
+            color: #fff;
+            border-color: #1a56db;
+        }
+
+        .btn-authenticate svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+        }
+
+    .signin-footer {
+        text-align: center;
+        font-size: 13px;
+        color: #888;
+        margin-top: 1.25rem;
+    }
+
+        .signin-footer a {
+            color: #1a56db;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+            .signin-footer a:hover {
+                text-decoration: underline;
+            }
+
+    @@media (prefers-color-scheme: dark) {
+        .signin-page {
+            background: #111;
+        }
+
+        .signin-card {
+            background: #1a1a1a;
+            border-color: #2e2e2e;
+        }
+
+        .signin-brand-name {
+            color: #f0f0f0;
+        }
+
+        .signin-brand-sub {
+            color: #666;
+        }
+
+        .signin-brand-icon {
+            background: #1e2d4a;
+        }
+
+            .signin-brand-icon svg {
+                stroke: #60a0f8;
+            }
+
+        .signin-card .form-label {
+            color: #aaa;
+        }
+
+        .signin-card .form-control {
+            background: #222;
+            border-color: #333;
+            color: #f0f0f0;
+        }
+
+            .signin-card .form-control:focus {
+                background: #1a1a1a;
+                border-color: #60a0f8;
+                box-shadow: 0 0 0 3px rgba(96,160,248,0.12);
+            }
+
+        .signin-card .input-icon {
+            stroke: #555;
+        }
+
+        .signin-card .remember-row label {
+            color: #aaa;
+        }
+
+        .btn-authenticate {
+            background: #1e2d4a;
+            border-color: #2a4070;
+            color: #60a0f8;
+        }
+
+            .btn-authenticate:hover {
+                background: #1a56db;
+                color: #fff;
+                border-color: #1a56db;
+            }
+
+        .signin-footer {
+            color: #666;
+        }
+    }
+</style>
+
+<div class="signin-page">
+    <div class="signin-wrapper">
+
+        <div class="signin-brand">
+            <div class="signin-brand-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                </svg>
             </div>
+            <span class="signin-brand-name">EMS Portal</span>
+            <p class="signin-brand-sub">Sign in to your account</p>
+        </div>
 
-        <div class="ap-card-body">
+        <div class="signin-card">
 
             @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ContainsKey(string.Empty))
             {
-                <div class="alert alert-danger">
+                <div class="alert alert-danger mb-3" style="font-size:13px; border-radius:8px;">
                     @Html.ValidationSummary(true)
                 </div>
             }
@@ -77,41 +315,75 @@
                 @Html.AntiForgeryToken()
 
                 <div class="form-group">
-                    <label class="form-label" asp-for="Email">Email Address</label>
-                    <input class="form-control" asp-for="Email" type="email"
-                           placeholder="you@company.com" autocomplete="email" autofocus />
+                    <label class="form-label" asp-for="Email">Email address</label>
+                    <div class="input-wrap">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="2" y="4" width="20" height="16" rx="2" />
+                            <path d="m2 7 10 7 10-7" />
+                        </svg>
+                        <input class="form-control" asp-for="Email" type="email"
+                               placeholder="you@company.com" autocomplete="email" autofocus />
+                    </div>
                     <span class="field-validation-error" asp-validation-for="Email"></span>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" asp-for="Password">Password</label>
-                    <input class="form-control" asp-for="Password" type="password"
-                           placeholder="••••••••••••" autocomplete="current-password" />
+                    <div class="label-row">
+                        <label class="form-label" asp-for="Password" style="margin-bottom:0;">Password</label>
+                        <a href="/Account/ForgotPassword" class="forgot-link">Forgot password?</a>
+                    </div>
+                    <div class="input-wrap">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="3" y="11" width="18" height="11" rx="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                        <input class="form-control has-right-icon" asp-for="Password" id="PasswordInput" type="password"
+                               placeholder="••••••••••••" autocomplete="current-password" />
+                        <button type="button" class="input-icon-right" onclick="togglePassword()" aria-label="Toggle password visibility">
+                            <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;stroke:inherit;">
+                                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" />
+                                <circle cx="12" cy="12" r="3" />
+                            </svg>
+                        </button>
+                    </div>
                     <span class="field-validation-error" asp-validation-for="Password"></span>
                 </div>
 
-                <div class="mb-4 d-flex justify-content-between align-items-center">
-                    <div class="form-check">
+                <div class="remember-row">
                     <input asp-for="RememberMe" type="checkbox" id="RememberMe" />
                     <label for="RememberMe">Keep me signed in for 8 hours</label>
                 </div>
 
-                <button type="submit" class="btn btn-primary">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><polyline points="10 17 15 12 10 7" /><line x1="15" y1="12" x2="3" y2="12" /></svg>
+                <button type="submit" class="btn-authenticate">
+                    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                        <polyline points="10 17 15 12 10 7" />
+                        <line x1="15" y1="12" x2="3" y2="12" />
+                    </svg>
                     Authenticate
                 </button>
             </form>
         </div>
 
-        <div class="card-footer-link">
+        <p class="signin-footer">
             No account? <a href="/Account/Register">Create one</a>
-        </div>
+        </p>
+
     </div>
 </div>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+<script>
+    function togglePassword() {
+        var input = document.getElementById('PasswordInput');
+        var icon = document.getElementById('eye-icon');
+        var isHidden = input.type === 'password';
+        input.type = isHidden ? 'text' : 'password';
+        icon.innerHTML = isHidden
+            ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>'
+            : '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>';
     }
 </script>
-</body>
-</html>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

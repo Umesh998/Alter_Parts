@@ -6,13 +6,20 @@
         public string OriginalPart { get; set; }
         public string AlternatePart { get; set; }
         public string Remark { get; set; }
-        public string Description { get; set; }
-        public string Manufacturer { get; set; }
-        public string ComparisonResult { get; set; }
-        public string Status { get; set; } // Pending, Done, Error
+        public string Description { get; set; }         // Your description from Excel
 
-        public string Source { get; set; } // "DigiKey / DigiKey", "Mouser / DigiKey" etc
-     
+        public string Manufacturer { get; set; }
+        public string Source { get; set; }              // e.g. "DigiKey/Mouser"
+
+        // ── Step 1: Original Part vs Your Description ───────────────
+        public string OriginalDescription { get; set; } // Fetched online for original part
+        public string BestMatchPercent { get; set; }    // e.g. "82%"
+        public string OverallVerdict { get; set; }      // ✅ Strong Match / ❌ No Match / ⚠️
+
+        // ── Step 2: Original Part vs Alternate Part ─────────────────
+        public string ComparisonResult { get; set; }    // ✅ Compatible / ❌ Not Compatible / ⚠️
+
+        public string Status { get; set; }              // Pending, Done, Error
     }
 
     public class BomUploadResult

@@ -1,448 +1,4 @@
-﻿@* @model Alter_Parts.Models.BomUploadResult
-@using System.Text.Json
-
-@{
-    ViewData["Title"] = "BOM Comparison Results";
-}
-
-<div class="container mt-4">
-    <h2>📊 BOM Comparison Results</h2>
-    <p class="text-muted">File: <strong>@Model.FileName</strong></p>
-
-    <!-- Summary Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-center border-primary">
-                <div class="card-body">
-                    <h4 class="text-primary">@Model.ProcessedRows</h4>
-                    <small class="text-muted">Parts Compared</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center border-success">
-                <div class="card-body">
-                    <h4 class="text-success">@Model.CompatibleCount</h4>
-                    <small class="text-muted">✅ Compatible</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center border-danger">
-                <div class="card-body">
-                    <h4 class="text-danger">@Model.IncompatibleCount</h4>
-                    <small class="text-muted">❌ Not Compatible</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center border-warning">
-                <div class="card-body">
-                    <h4 class="text-warning">@Model.ManualCheckCount</h4>
-                    <small class="text-muted">⚠️ Check Manually</small>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Results Table -->
-    <div class="card shadow-sm">
-        <div class="card-body table-responsive">
-            <table class="table table-bordered table-hover align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Row #</th>
-                        <th>Original Part</th>
-                        <th>Alternate Part</th>
-                        <th>Remark</th>
-                        <th>Data Source</th>
-                        <th>Comparison Result</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var row in Model.Rows)
-                    {
-                        var rowClass = row.ComparisonResult?.StartsWith("✅") == true ? "table-success"
-                                     : row.ComparisonResult?.StartsWith("❌") == true ? "table-danger"
-                                     : "table-warning";
-                        <tr class="@rowClass">
-                            <td>@row.RowNumber</td>
-                            <td><strong>@row.OriginalPart</strong></td>
-                            <td>@row.AlternatePart</td>
-                            <td><small>@row.Remark</small></td>
-                            <td>
-                                @if (!string.IsNullOrEmpty(row.Source))
-                                {
-                                    // Show badge for each source
-                                    foreach (var src in row.Source.Split('/'))
-                                    {
-                                        var badge = src.Trim() switch
-                                        {
-                                            "DigiKey" => "bg-primary",
-                                            "Mouser" => "bg-success",
-                                            "Not Found" => "bg-secondary",
-                                            _ => "bg-dark"
-                                        };
-                                        <span class="badge @badge me-1">@src.Trim()</span>
-                                    }
-                                }
-                                else
-                                {
-                                    <span class="badge bg-secondary">Unknown</span>
-                                }
-                            </td>
-                            <td>@row.ComparisonResult</td>
-                            <td>
-                                @if (row.Status == "Done")
-                                {
-                                    <span class="badge bg-success">Done</span>
-                                }
-                                else if (row.Status == "Error")
-                                {
-                                    <span class="badge bg-danger">Error</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-warning text-dark">Pending</span>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Export + Back Buttons -->
-    <form asp-action="ExportResults" method="post" class="mt-3">
-        <input type="hidden" name="resultsJson" value="@JsonSerializer.Serialize(Model.Rows)" />
-        <button type="submit" class="btn btn-success">
-            📥 Export Results to Excel
-        </button>
-        <a asp-action="Upload" class="btn btn-secondary ms-2">
-            ⬆️ Upload Another BOM
-        </a>
-    </form>
-</div>
- *@
-
-
-
-
-
-
-
-
-@* @model Alter_Parts.Models.BomUploadResult
-@using System.Text.Json
-
-@{
-    ViewData["Title"] = "BOM Comparison Results";
-}
-
-<!-- Import Technical Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
-
-<style>
-    /* ── RICHARD MILLE DARK THEME ── */
-    .rm-theme-wrapper {
-        background-color: #050505;
-        color: #E0E0E0;
-        font-family: 'Rajdhani', sans-serif;
-        padding: 40px 0;
-        min-height: 100vh;
-    }
-
-    .rm-container {
-        max-width: 1600px;
-        margin: 0 auto;
-        padding: 0 20px;
-    }
-
-    /* Architectural Headers */
-    .rm-header {
-        font-size: 2.2rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 3px;
-        border-bottom: 1px solid #333;
-        padding-bottom: 15px;
-        margin-bottom: 10px;
-        color: #FFFFFF;
-    }
-    .rm-header span { color: #FF073A; /* Laser Red */ }
-    
-    .rm-filename {
-        font-family: 'Space Mono', monospace;
-        color: #888;
-        font-size: 0.9rem;
-        letter-spacing: 1px;
-        margin-bottom: 30px;
-    }
-
-    /* Dashboard Stat Boxes */
-    .rm-stat-box {
-        background-color: #0A0A0A;
-        border: 1px solid #222;
-        padding: 20px;
-        text-align: center;
-        border-top: 3px solid #333;
-        transition: border-color 0.3s ease;
-        height: 100%;
-    }
-    .rm-stat-box:hover { border-top-color: #777; }
-    
-    .rm-stat-box.border-primary { border-top-color: #0088FF; }
-    .rm-stat-box.border-success { border-top-color: #39FF14; }
-    .rm-stat-box.border-danger { border-top-color: #FF073A; }
-    .rm-stat-box.border-warning { border-top-color: #FF9900; }
-
-    .rm-stat-value {
-        font-family: 'Space Mono', monospace;
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 5px;
-    }
-    .rm-stat-label {
-        color: #666;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        font-size: 0.8rem;
-        font-weight: 600;
-    }
-
-    /* Engineered Data Table */
-    .rm-table-wrapper {
-        background-color: #0A0A0A;
-        border: 1px solid #1A1A1A;
-        margin-bottom: 30px;
-        overflow-x: auto;
-    }
-    
-    .rm-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    .rm-table th {
-        background-color: #000;
-        color: #555;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        padding: 15px;
-        font-size: 0.75rem;
-        border-bottom: 1px solid #222;
-        text-align: left;
-        white-space: nowrap;
-    }
-
-    .rm-table td {
-        padding: 15px;
-        border-bottom: 1px solid #151515;
-        vertical-align: middle;
-        font-size: 0.95rem;
-    }
-
-    .rm-table tr:hover { background-color: #111; }
-
-    /* Text & Typography */
-    .rm-mono { font-family: 'Space Mono', monospace; }
-    .rm-part-number { color: #FFF; font-size: 1.05rem; letter-spacing: 1px; font-weight: bold;}
-    .rm-desc { color: #888; font-size: 0.85rem; }
-
-    /* Neon Indicators (Badges) */
-    .rm-badge {
-        padding: 4px 8px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        display: inline-block;
-        font-family: 'Space Mono', monospace;
-        margin-bottom: 4px;
-        margin-right: 4px;
-    }
-
-    .rm-badge-primary { background-color: rgba(0, 136, 255, 0.1); color: #0088FF; border: 1px solid #0088FF; }
-    .rm-badge-exact { background-color: rgba(57, 255, 20, 0.1); color: #39FF14; border: 1px solid #39FF14; }
-    .rm-badge-warn { background-color: rgba(255, 153, 0, 0.1); color: #FF9900; border: 1px solid #FF9900; }
-    .rm-badge-fail { background-color: rgba(255, 7, 58, 0.1); color: #FF073A; border: 1px solid #FF073A; }
-    .rm-badge-dark { background-color: #111; color: #666; border: 1px solid #333; }
-
-    /* Tactical Buttons */
-    .rm-controls {
-        display: flex;
-        gap: 15px;
-        margin-bottom: 40px;
-    }
-    
-    .rm-btn {
-        background-color: transparent;
-        color: #FFF;
-        border: 1px solid #444;
-        padding: 12px 24px;
-        font-family: 'Rajdhani', sans-serif;
-        font-size: 0.9rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        text-decoration: none;
-        transition: all 0.2s ease;
-        cursor: pointer;
-        display: inline-block;
-    }
-
-    .rm-btn:hover { background-color: #FFF; color: #000; text-decoration: none;}
-    .rm-btn-success { border-color: #39FF14; color: #39FF14; }
-    .rm-btn-success:hover { background-color: #39FF14; color: #000; }
-    .rm-btn-primary { border-color: #0088FF; color: #0088FF; }
-    .rm-btn-primary:hover { background-color: #0088FF; color: #000; }
-</style>
-
-<div class="rm-theme-wrapper">
-    <div class="rm-container">
-        
-        <h2 class="rm-header">BOM <span>Comparison</span> Results</h2>
-        <div class="rm-filename">TARGET_FILE: @Model.FileName</div>
-
-        <!-- Summary Dashboard -->
-        <div class="row mb-5">
-            <div class="col-md-3 mb-3 mb-md-0">
-                <div class="rm-stat-box border-primary">
-                    <div class="rm-stat-value" style="color: #0088FF;">@Model.ProcessedRows</div>
-                    <div class="rm-stat-label">Parts Compared</div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3 mb-md-0">
-                <div class="rm-stat-box border-success">
-                    <div class="rm-stat-value" style="color: #39FF14;">@Model.CompatibleCount</div>
-                    <div class="rm-stat-label">Compatible</div>
-                </div>
-            </div>
-            <div class="col-md-3 mb-3 mb-md-0">
-                <div class="rm-stat-box border-danger">
-                    <div class="rm-stat-value" style="color: #FF073A;">@Model.IncompatibleCount</div>
-                    <div class="rm-stat-label">Not Compatible</div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="rm-stat-box border-warning">
-                    <div class="rm-stat-value" style="color: #FF9900;">@Model.ManualCheckCount</div>
-                    <div class="rm-stat-label">Check Manually</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Data Grid -->
-        <div class="rm-table-wrapper">
-            <table class="rm-table">
-                <thead>
-                    <tr>
-                        <th style="width: 5%;">Row</th>
-                        <th style="width: 15%;">Original Part</th>
-                        <th style="width: 15%;">Alternate Part</th>
-                        <th style="width: 15%;">Remark</th>
-                        <th style="width: 15%;">Data Source</th>
-                        <th style="width: 25%;">Comparison Result</th>
-                        <th style="width: 10%;">Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var row in Model.Rows)
-                    {
-                        <tr>
-                            <td class="rm-mono" style="color: #444;">@row.RowNumber.ToString("D3")</td>
-                            
-                            <td>
-                                <div class="rm-mono rm-part-number">@row.OriginalPart</div>
-                            </td>
-                            
-                            <td>
-                                <div class="rm-mono" style="color: #0088FF; font-weight: bold; letter-spacing: 1px;">@row.AlternatePart</div>
-                            </td>
-                            
-                            <td>
-                                <div class="rm-desc">@row.Remark</div>
-                            </td>
-                            
-                            <td>
-                                @if (!string.IsNullOrEmpty(row.Source))
-                                {
-                                    foreach (var src in row.Source.Split('/'))
-                                    {
-                                        var badgeClass = src.Trim() switch
-                                        {
-                                            "DigiKey" => "rm-badge-primary",
-                                            "Mouser"  => "rm-badge-exact",
-                                            "Not Found" => "rm-badge-dark",
-                                            _ => "rm-badge-dark"
-                                        };
-                                        <span class="rm-badge @badgeClass">@src.Trim().ToUpper()</span>
-                                    }
-                                }
-                                else
-                                {
-                                    <span class="rm-badge rm-badge-dark">UNKNOWN</span>
-                                }
-                            </td>
-
-                            <td>
-                                <div style="font-weight: 600;">
-                                    @{
-                                        var mainVerdictColor = row.ComparisonResult?.StartsWith("✅") == true ? "color: #39FF14;" :
-                                                               row.ComparisonResult?.StartsWith("❌") == true ? "color: #FF073A;" : "color: #FF9900;";
-                                    }
-                                    <span style="@mainVerdictColor">@row.ComparisonResult</span>
-                                </div>
-                            </td>
-
-                            <td>
-                                @if (row.Status == "Done")
-                                {
-                                    <span class="rm-badge rm-badge-exact">DONE</span>
-                                }
-                                else if (row.Status == "Error")
-                                {
-                                    <span class="rm-badge rm-badge-fail">ERROR</span>
-                                }
-                                else
-                                {
-                                    <span class="rm-badge rm-badge-warn">PENDING</span>
-                                }
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Control Panel (Buttons) -->
-        <form asp-action="ExportResults" method="post" class="rm-controls">
-            <input type="hidden" name="resultsJson" value="@JsonSerializer.Serialize(Model.Rows)" />
-            
-            <button type="submit" class="rm-btn rm-btn-success">
-                [+] EXPORT RESULTS
-            </button>
-            
-            <a asp-action="Upload" class="rm-btn rm-btn-primary">
-                [>] UPLOAD NEW BOM
-            </a>
-        </form>
-
-    </div>
-</div> *@
-
-
-
-
-
-
-
-
-
-
-@model Alter_Parts.Models.BomUploadResult
+﻿@model Alter_Parts.Models.BomUploadResult
 @using System.Text.Json
 
 @{
@@ -695,7 +251,6 @@
         <h2 class="rm-header">BOM <span>Comparison</span> Results</h2>
         <div class="rm-filename">TARGET_FILE: @Model.FileName</div>
 
-        <!-- Summary Dashboard -->
         <div class="row mb-5">
             <div class="col-6 col-md-3 mb-3 mb-md-0">
                 <div class="rm-stat-box border-primary">
@@ -723,18 +278,19 @@
             </div>
         </div>
 
-        <!-- ── DESKTOP TABLE ── -->
         <div class="rm-table-wrapper">
             <table class="rm-table">
                 <thead>
                     <tr>
-                        <th style="width: 5%;">Row</th>
-                        <th style="width: 15%;">Original Part</th>
-                        <th style="width: 15%;">Alternate Part</th>
-                        <th style="width: 15%;">Remark</th>
-                        <th style="width: 15%;">Data Source</th>
-                        <th style="width: 25%;">Comparison Result</th>
-                        <th style="width: 10%;">Status</th>
+                        <th style="width:4%;">Row</th>
+                        <th style="width:11%;">Original Part</th>
+                        <th style="width:11%;">Alternate Part</th>
+                        <th style="width:12%;">Your Description</th>
+                        <th style="width:8%;">Match %</th>
+                        <th style="width:10%;">Data Source</th>
+                        <th style="width:18%;">Step 1 · Desc Verdict</th>
+                        <th style="width:18%;">Step 2 · Alt Match</th>
+                        <th style="width:8%;">Status</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -744,31 +300,51 @@
                             <td class="rm-mono rm-row-number">@row.RowNumber.ToString("D3")</td>
                             <td><div class="rm-mono rm-part-number">@row.OriginalPart</div></td>
                             <td><div class="rm-mono rm-alt-part">@row.AlternatePart</div></td>
-                            <td><div class="rm-desc">@row.Remark</div></td>
+                            <td>
+                                <div class="rm-desc">@row.Description</div>
+                                @if (!string.IsNullOrEmpty(row.OriginalDescription))
+                                {
+                                    <div class="rm-desc" style="opacity:0.6; font-size:0.78rem; margin-top:4px;">
+                                        🌐 @row.OriginalDescription
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <div class="rm-mono" style="font-size:1.1rem; font-weight:bold;
+                                    color:@(row.BestMatchPercent == "100%" ? "var(--accent-green)" :
+                                           int.TryParse(row.BestMatchPercent?.Replace("%",""), out var pct) && pct >= 50
+                                           ? "#FF9900" : "#FF073A");">
+                                    @row.BestMatchPercent
+                                </div>
+                            </td>
                             <td>
                                 @if (!string.IsNullOrEmpty(row.Source))
                                 {
                                     foreach (var src in row.Source.Split('/'))
                                     {
-                                        var badgeClass = src.Trim() switch
-                                        {
-                                            "DigiKey"   => "rm-badge-primary",
-                                            "Mouser"    => "rm-badge-exact",
-                                            "Not Found" => "rm-badge-dark",
-                                            _           => "rm-badge-dark"
+                                        var bc = src.Trim() switch {
+                                            "DigiKey" => "rm-badge-primary",
+                                            "Mouser"  => "rm-badge-exact",
+                                            _         => "rm-badge-dark"
                                         };
-                                        <span class="rm-badge @badgeClass">@src.Trim().ToUpper()</span>
+                                        <span class="badge @bc">@src.Trim().ToUpper()</span>
                                     }
                                 }
                                 else { <span class="rm-badge rm-badge-dark">UNKNOWN</span> }
                             </td>
                             <td>
-                                <div style="font-weight: 600;">
-                                    <span style="color: @(row.ComparisonResult?.StartsWith("✅") == true ? "var(--accent-green)" :
-                                                          row.ComparisonResult?.StartsWith("❌") == true ? "#FF073A" : "#FF9900");">
-                                        @row.ComparisonResult
-                                    </span>
-                                </div>
+                                <span style="font-weight:600; color:@(row.OverallVerdict?.StartsWith("✅") == true
+                                    ? "var(--accent-green)"
+                                    : row.OverallVerdict?.StartsWith("❌") == true ? "#FF073A" : "#FF9900");">
+                                    @row.OverallVerdict
+                                </span>
+                            </td>
+                            <td>
+                                <span style="font-weight:600; color:@(row.ComparisonResult?.StartsWith("✅") == true
+                                    ? "var(--accent-green)"
+                                    : row.ComparisonResult?.StartsWith("❌") == true ? "#FF073A" : "#FF9900");">
+                                    @row.ComparisonResult
+                                </span>
                             </td>
                             <td>
                                 @if (row.Status == "Done")
@@ -784,7 +360,6 @@
             </table>
         </div>
 
-        <!-- ── MOBILE CARDS ── -->
         <div class="rm-mobile-cards">
             @foreach (var row in Model.Rows)
             {
@@ -799,9 +374,24 @@
 
                     <div class="rm-card-remark">@row.Remark</div>
 
+                    @* Step 1: Description Match *@
+                    <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:3px;">
+                        Step 1 · Desc Match
+                    </div>
+                    <div class="rm-card-result">
+                        <span style="color: @(row.OverallVerdict?.StartsWith("✅") == true ? "var(--accent-green)" :
+                                             row.OverallVerdict?.StartsWith("❌") == true ? "#FF073A" : "#FF9900");">
+                            @row.OverallVerdict
+                        </span>
+                    </div>
+
+                    @* Step 2: Alt Part Match *@
+                    <div style="font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:3px; margin-top:6px;">
+                        Step 2 · Alt Match
+                    </div>
                     <div class="rm-card-result">
                         <span style="color: @(row.ComparisonResult?.StartsWith("✅") == true ? "var(--accent-green)" :
-                                              row.ComparisonResult?.StartsWith("❌") == true ? "#FF073A" : "#FF9900");">
+                                             row.ComparisonResult?.StartsWith("❌") == true ? "#FF073A" : "#FF9900");">
                             @row.ComparisonResult
                         </span>
                     </div>
@@ -811,16 +401,16 @@
                             @if (!string.IsNullOrEmpty(row.Source))
                             {
                                 foreach (var src in row.Source.Split('/'))
-                                {
-                                    var badgeClass = src.Trim() switch
                                     {
-                                        "DigiKey"   => "rm-badge-primary",
-                                        "Mouser"    => "rm-badge-exact",
-                                        "Not Found" => "rm-badge-dark",
-                                        _           => "rm-badge-dark"
-                                    };
-                                    <span class="rm-badge @badgeClass">@src.Trim().ToUpper()</span>
-                                }
+                                        var badgeClass = src.Trim() switch
+                                        {
+                                            "DigiKey"   => "rm-badge-primary",
+                                            "Mouser"    => "rm-badge-exact",
+                                            "Not Found" => "rm-badge-dark",
+                                            _           => "rm-badge-dark"
+                                        };
+                                        <span class="rm-badge @badgeClass">@src.Trim().ToUpper()</span>
+                                    }
                             }
                         </div>
                         <div>
@@ -836,7 +426,6 @@
             }
         </div>
 
-        <!-- Control Panel -->
         <form asp-action="ExportResults" method="post" class="rm-controls">
             <input type="hidden" name="resultsJson" value="@JsonSerializer.Serialize(Model.Rows)" />
             <button type="submit" class="rm-btn rm-btn-success">[+] EXPORT RESULTS</button>
