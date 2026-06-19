@@ -13,5 +13,17 @@
 
         public string Price { get; set; }
         public Dictionary<string, string> Specs { get; set; } = new();
+
+        public List<PriceBreak> PriceBreaks { get; set; } = new();
+
+        public string LifecycleStatus { get; set; } = "Active"; // Active, Discontinued, EndOfLife, NRND, Unknown
+        public bool IsObsolete => LifecycleStatus == "Discontinued" || LifecycleStatus == "EndOfLife";
+    }
+
+    public class PriceBreak
+    {
+        public int BreakQuantity { get; set; }
+        public decimal UnitPrice { get; set; }
+        public decimal TotalPrice => BreakQuantity * UnitPrice;
     }
 }

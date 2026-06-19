@@ -2660,7 +2660,8 @@ namespace Alter_Parts.Controllers
         // ── POST: /Verify/ExportVerifyResults ─────────────────────
 
         [HttpPost]
-        public IActionResult ExportVerifyResults(string resultsJson)
+        [HttpPost]
+        public IActionResult ExportVerifyResults(string resultsJson, string fileName)
         {
             var rows = JsonSerializer
                 .Deserialize<List<BomVerifyRow>>(resultsJson);
@@ -2773,10 +2774,14 @@ namespace Alter_Parts.Controllers
 
             sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
             var fileBytes = package.GetAsByteArray();
+
+            // Sanitize and use custom fileName
+            fileName = string.IsNullOrWhiteSpace(fileName) ? "000" : fileName;
+            fileName = string.Concat(fileName.Split(Path.GetInvalidFileNameChars()));
+
             return File(fileBytes,
-                "application/vnd.openxmlformats-officedocument" +
-                ".spreadsheetml.sheet",
-                $"BOM_Verify_{DateTime.Now:yyyyMMdd_HHmm}.xlsx");
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                $"BOM_Verify_{fileName}.xlsx");
         }
 
         // ── Helper: find column ───────────────────────────────────

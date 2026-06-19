@@ -519,6 +519,8 @@ Main code for this file *@
 
     bool hasPkg = Model.Specs.TryGetValue("Package / Case", out var pkg) ||
                   Model.Specs.TryGetValue("Case/Package", out pkg);
+
+    bool hasPriceBreaks = Model.PriceBreaks != null && Model.PriceBreaks.Any();
 }
 
 <div class="col-lg-6 mb-4">
@@ -530,15 +532,40 @@ Main code for this file *@
                 <span class="rm-source-badge" style="color: @sourceHex; border-color: @sourceHex;">
                     @Model.Source.ToUpper()
                 </span>
+
                 <span class="rm-mpn-badge">@Model.Mpn</span>
                 @if (!string.IsNullOrEmpty(sourcePN))
                 {
                     <span class="rm-pn-badge">@sourcePN</span>
                 }
             </div>
-            <span class="rm-match-badge" style="color: @matchHex; border-color: @matchBorderHex;">
-                @matchScore% MATCH
-            </span>
+
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0;">
+                <span class="rm-match-badge" style="color: @matchHex; border-color: @matchBorderHex;">
+                    @matchScore% MATCH
+                </span>
+                @{
+                    var statusColor = Model.LifecycleStatus switch
+                    {
+                        "EndOfLife" => "#FF073A",
+                        "Discontinued" => "#FF073A",
+                        "NRND" => "#FF9900",
+                        _ => "var(--accent-green)"
+                    };
+                    var statusLabel = Model.LifecycleStatus switch
+                    {
+                        "EndOfLife" => "● END OF LIFE",
+                        "Discontinued" => "● DISCONTINUED",
+                        "NRND" => "● NRND",
+                        _ => "● ACTIVE"
+                    };
+                }
+                <span style="font-family:'Space Mono',monospace; font-size:0.65rem; font-weight:700;
+                    color:@statusColor; white-space:nowrap;">
+                    @statusLabel
+                </span>
+            </div>
+
         </div>
 
         <!-- ── CARD BODY ── -->
@@ -580,6 +607,25 @@ Main code for this file *@
                 }
             </div>
 
+            <!-- ── PRICE BREAKS TABLE ── -->
+            @if (hasPriceBreaks)
+            {
+                <div class="rm-price-breaks">
+                    <div class="rm-field-label" style="margin-bottom: 6px;">Price Breaks</div>
+                    <div class="rm-price-break-grid">
+                        <span class="rm-pb-header">QTY</span>
+                        <span class="rm-pb-header">UNIT PRICE</span>
+                        <span class="rm-pb-header">TOTAL</span>
+                        @foreach (var pb in Model.PriceBreaks)
+                        {
+                            <span class="rm-pb-qty">@pb.BreakQuantity.ToString("N0")</span>
+                            <span class="rm-pb-price">$@pb.UnitPrice.ToString("0.0000")</span>
+                            <span class="rm-pb-total">$@pb.TotalPrice.ToString("0.00")</span>
+                        }
+                    </div>
+                </div>
+            }
+
             <!-- Match Progress Bar -->
             <div class="rm-progress-bg">
                 <div class="rm-progress-fill" style="width: @matchScore%; background: @matchHex;"></div>
@@ -602,8 +648,8 @@ Main code for this file *@
             @if (!string.IsNullOrEmpty(Model.ProductUrl))
             {
                 <a href="@Model.ProductUrl" target="_blank"
-                       class="rm-card-btn"
-                       style="border-color: @sourceHex; color: @sourceHex;">
+                   class="rm-card-btn"
+                   style="border-color: @sourceHex; color: @sourceHex;">
                     [🛒] @Model.Source
                 </a>
             }
@@ -616,9 +662,9 @@ Main code for this file *@
             @if (!string.IsNullOrEmpty(Model.Mpn))
             {
                 <a asp-controller="Verify"
-                       asp-action="Index"
-                       asp-route-partNumber="@Model.Mpn"
-                       class="rm-card-btn">
+                   asp-action="Index"
+                   asp-route-partNumber="@Model.Mpn"
+                   class="rm-card-btn">
                     [🔍] VERIFY
                 </a>
             }
@@ -748,6 +794,47 @@ Main code for this file *@
         word-break: break-word;
     }
 
+    /* ── PRICE BREAKS ── */
+    .rm-price-breaks {
+        background-color: var(--bg-primary);
+        border: 1px solid var(--border-subtle);
+        border-left: 3px solid var(--accent-green);
+        padding: 10px 12px;
+        margin-bottom: 14px;
+    }
+
+    .rm-price-break-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 4px 8px;
+        font-family: 'Space Mono', monospace;
+        font-size: 0.72rem;
+        align-items: center;
+    }
+
+    .rm-pb-header {
+        color: var(--footer-text);
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid var(--border-subtle);
+        margin-bottom: 2px;
+    }
+
+    .rm-pb-qty {
+        color: var(--text-muted);
+    }
+
+    .rm-pb-price {
+        color: var(--accent-green);
+        font-weight: bold;
+    }
+
+    .rm-pb-total {
+        color: var(--text-muted);
+    }
+
     /* ── PROGRESS BAR ── */
     .rm-progress-bg {
         height: 4px;
@@ -830,6 +917,10 @@ Main code for this file *@
             gap: 8px;
         }
 
+        .rm-price-break-grid {
+            font-size: 0.65rem;
+        }
+
         .rm-card-footer {
             gap: 6px;
         }
@@ -840,3 +931,4 @@ Main code for this file *@
         }
     }
 </style>
+

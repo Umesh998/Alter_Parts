@@ -1650,12 +1650,101 @@
         </div>
 
         <!-- Control Panel -->
-        <form asp-action="ExportVerifyResults" method="post" class="rm-controls">
+        @* <form asp-action="ExportVerifyResults" method="post" class="rm-controls">
             <input type="hidden" name="resultsJson" value="@JsonSerializer.Serialize(Model.Rows)" />
             <button type="submit" class="rm-btn rm-btn-success">[+] EXPORT PAYLOAD</button>
             <a asp-action="BomVerify" class="rm-btn rm-btn-primary">[>] NEW MATRIX</a>
             <a asp-controller="Component" asp-action="More_Fruits" class="rm-btn">[«] RETURN TO CORE</a>
-        </form>
+        </form> *@
+
+<!-- Control Panel -->
+<div class="rm-controls">
+    <!-- Hidden export form -->
+    <form id="exportForm" asp-action="ExportVerifyResults" method="post" style="display:none;">
+        <input type="hidden" name="resultsJson" value="@JsonSerializer.Serialize(Model.Rows)" />
+        <input type="hidden" name="fileName" id="hiddenFileName" />
+    </form>
+
+    <button type="button" class="rm-btn rm-btn-success" onclick="openDownloadModal()">[+] EXPORT PAYLOAD</button>
+    <a asp-action="BomVerify" class="rm-btn rm-btn-primary">[>] NEW MATRIX</a>
+    <a asp-controller="Component" asp-action="More_Fruits" class="rm-btn">[«] RETURN TO CORE</a>
+</div>
+
+<!-- Download Modal -->
+<div class="modal fade" id="downloadModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 0;">
+            <div class="modal-header" style="border-bottom: 1px solid var(--border-color);">
+                <h5 class="modal-title" style="font-family:'Rajdhani',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:2px; color:var(--text-primary);">
+                    Export Payload
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <label style="font-family:'Space Mono',monospace; font-size:0.75rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:2px; display:block; margin-bottom:8px;">
+                    Job Number
+                </label>
+                <div style="display:flex; border:1px solid var(--border-color); overflow:hidden;">
+                    <span style="background:var(--bg-card); color:var(--text-muted); font-family:'Space Mono',monospace; font-size:0.75rem; padding:10px 12px; white-space:nowrap; border-right:1px solid var(--border-color);">
+                        BOM_Verify_
+                    </span>
+                    <input type="text" id="jobNumber" placeholder="e.g. J1045"
+                           style="flex:1; background:var(--bg-primary); color:var(--text-primary); border:none; outline:none; padding:10px 12px; font-family:'Space Mono',monospace; font-size:0.85rem;" />
+                    <span style="background:var(--bg-card); color:var(--text-muted); font-family:'Space Mono',monospace; font-size:0.75rem; padding:10px 12px; white-space:nowrap; border-left:1px solid var(--border-color);">
+                        .xlsx
+                    </span>
+                </div>
+                <div style="margin-top:10px; font-family:'Space Mono',monospace; font-size:0.72rem; color:var(--text-muted);">
+                    OUTPUT // <span id="filePreview" style="color:var(--accent-blue);">BOM_Verify_<em>JobNo</em>.xlsx</span>
+                </div>
+                <div id="jobError" style="display:none; margin-top:8px; font-family:'Space Mono',monospace; font-size:0.72rem; color:#FF073A;">
+                    !! JOB NUMBER REQUIRED
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top:1px solid var(--border-color);">
+                <button type="button" class="rm-btn" data-bs-dismiss="modal">[X] CANCEL</button>
+                <button type="button" class="rm-btn rm-btn-success" onclick="confirmDownload()">[+] DOWNLOAD</button>
+            </div>
+        </div>
+    </div>
+</div>
 
     </div>
 </div>
+
+                <script>
+    function openDownloadModal() {
+        document.getElementById('jobNumber').value = '';
+        document.getElementById('filePreview').innerHTML = 'BOM_Verify_<em>JobNo</em>.xlsx';
+        document.getElementById('jobError').style.display = 'none';
+        new bootstrap.Modal(document.getElementById('downloadModal')).show();
+        document.getElementById('downloadModal').addEventListener('shown.bs.modal', function () {
+            document.getElementById('jobNumber').focus();
+        }, { once: true });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('jobNumber').addEventListener('input', function () {
+            const val = this.value.trim();
+            document.getElementById('filePreview').innerHTML =
+                val ? `BOM_Verify_${val}.xlsx` : 'BOM_Verify_<em>JobNo</em>.xlsx';
+            document.getElementById('jobError').style.display = 'none';
+        });
+
+        document.getElementById('jobNumber').addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') confirmDownload();
+        });
+    });
+
+    function confirmDownload() {
+        const jobNumber = document.getElementById('jobNumber').value.trim();
+        if (!jobNumber) {
+            document.getElementById('jobError').style.display = 'block';
+            document.getElementById('jobNumber').focus();
+            return;
+        }
+        document.getElementById('hiddenFileName').value = jobNumber;
+        document.getElementById('exportForm').submit();
+        bootstrap.Modal.getInstance(document.getElementById('downloadModal')).hide();
+    }
+</script>
